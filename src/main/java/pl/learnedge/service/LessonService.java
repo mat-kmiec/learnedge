@@ -2,14 +2,20 @@ package pl.learnedge.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pl.learnedge.dto.LessonDto;
 import pl.learnedge.exception.LessonNotFoundException;
+import pl.learnedge.exception.UserNotFoundException;
 import pl.learnedge.mapper.LessonMapper;
 import pl.learnedge.model.Course;
 import pl.learnedge.model.Lesson;
+import pl.learnedge.model.LessonProgress;
+import pl.learnedge.model.User;
 import pl.learnedge.repository.CourseRepository;
+import pl.learnedge.repository.LessonProgressRepository;
 import pl.learnedge.repository.LessonRepository;
+import pl.learnedge.repository.UserRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +31,8 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final LessonProgressRepository lessonProgressRepository;
 
     public LessonDto getLessonBySlug(String slug) {
         Lesson lesson = lessonRepository.findBySlug(slug)
@@ -135,6 +143,27 @@ public class LessonService {
         return lessonRepository.findTopByCourseIdOrderByLessonOrderDesc(courseId)
                 .map(Lesson::getLessonOrder)
                 .orElse(0);
+    }
+
+    @Transactional
+    public void markLessonAsCompleted(Long lessonId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(LessonNotFoundException::new);
+
+        LessonProgress progress = lessonProgressRepository.findByLessonAndUser(lesson, user)
+                .orElse(new LessonProgress());
+
+        if (progress.isCompleted()) return;
+
+        progress.setCompleted(true);
+        progress.setUser(user);
+        progress.setLesson(lesson);
+
+        lessonProgressRepository.save(progress);
+
     }
 }
 

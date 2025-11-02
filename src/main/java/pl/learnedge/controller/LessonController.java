@@ -7,7 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.learnedge.dto.LessonDto;
-import pl.learnedge.mapper.CourseMapper;
+import pl.learnedge.exception.LessonNotFoundException;
+import pl.learnedge.model.Lesson;
+import pl.learnedge.model.LessonProgress;
+import pl.learnedge.model.User;
+import pl.learnedge.repository.LessonProgressRepository;
+import pl.learnedge.repository.LessonRepository;
+import pl.learnedge.repository.UserRepository;
+import pl.learnedge.service.AuthService;
 import pl.learnedge.service.LessonService;
 
 import java.util.List;
@@ -17,7 +24,10 @@ import java.util.List;
 public class LessonController {
 
     private final LessonService lessonService;
-    private final CourseMapper courseMapper;
+    private final AuthService authService;
+    private final LessonRepository lessonRepository;
+    private final LessonProgressRepository lessonProgressRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/kurs/{course_slug}/{lesson_slug}")
     public String lesson(@PathVariable String course_slug, @PathVariable String lesson_slug, Model model) {
@@ -52,6 +62,13 @@ public class LessonController {
 
         lessonService.saveLesson(courseId, title, contentHtml, images, imageNames, audio, audioNames);
         return ResponseEntity.ok("Lesson saved successfully");
+    }
+
+    @PutMapping("/api/{lessonId}/complete")
+    public ResponseEntity<?> completeLesson(@PathVariable Long lessonId) {
+        Long userId = authService.getCurrentUserId();
+        lessonService.markLessonAsCompleted(lessonId, userId);
+        return null;
     }
 
 
