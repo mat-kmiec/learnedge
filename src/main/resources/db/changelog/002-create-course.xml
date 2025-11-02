@@ -27,14 +27,12 @@
 
     <changeSet id="002-seed-user" author="learnedge" context="dev">
         <insert tableName="courses">
-            <column name="id" value="1"/>
             <column name="name" value="Podstawy Javy"/>
             <column name="description" value="Wprowadzenie do języka Java, składni, zmiennych, pętli i klas."/>
             <column name="difficulty" value="początkujący"/>
             <column name="slug" value="podstawy-java" />
         </insert>
         <insert tableName="courses">
-            <column name="id" value="2"/>
             <column name="name" value="Podstawy programowania w python"/>
             <column name="description" value="Wprowadzenie do języka Python"/>
             <column name="difficulty" value="początkujący"/>

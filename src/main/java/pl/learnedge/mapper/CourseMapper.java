@@ -51,6 +51,15 @@ public class CourseMapper {
 
     }
 
+    public Course toEntity(CourseDto courseDto) {
+        Course course = new Course();
+        course.setName(courseDto.getName());
+        course.setDescription(courseDto.getDescription());
+        course.setDifficulty(courseDto.getDifficulty());
+        course.setSlug(courseDto.getSlug());
+        return course;
+    }
+
 
 
 }

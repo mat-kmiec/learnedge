@@ -16,6 +16,7 @@ import pl.learnedge.model.User;
 import pl.learnedge.model.UserCourse;
 import pl.learnedge.repository.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class CourseService {
     private final LessonMapper lessonMapper;
     private final UserRepository userRepository;
     private final LessonProgressRepository lessonProgressRepository;
+    private final SlugService slugService;
 
     public List<CourseDto> getAvailableCoursesForUser(Long userId){
         return courseRepository.findAllCoursesNotEnrolledByUser(userId)
@@ -91,5 +93,19 @@ public class CourseService {
                .build();
 
        userCourseRepository.save(userCourse);
+    }
+
+    public List<CourseDto> getAllCourse() {
+        return courseRepository.findAll()
+                .stream()
+                .map(courseMapper::toDto)
+                .toList();
+    }
+
+    public void createCourse(CourseDto newCourseData) {
+        Course newCourse = courseMapper.toEntity(newCourseData);
+        newCourse.setId(null);
+        newCourse.setSlug(slugService.generateSlug(newCourse.getName()));
+        courseRepository.save(newCourse);
     }
 }
