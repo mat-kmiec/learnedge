@@ -54,11 +54,19 @@
           
           <div class="col-md-6 col-lg-4" th:each="lesson : ${course.lessons}">
             <div class="course-card h-100 position-relative">
-              <span
-                class="position-absolute top-0 end-0 m-3 badge rounded-pill bg-secondary"
-              >
-                 Nieukończone
-              </span>
+                <span
+                        class="position-absolute top-0 end-0 m-3 badge rounded-pill"
+                        th:classappend="${lesson.completed} ? 'bg-success' : 'bg-secondary'">
+
+                    <span th:if="${lesson.completed}">
+                        Ukończona <i class="bi bi-check-circle-fill"></i>
+                    </span>
+
+                    <span th:unless="${lesson.completed}">
+                        Nieukończona <i class="bi bi-hourglass-split"></i>
+                    </span>
+
+                </span>
               <h5 class="fw-bold mb-2 d-flex align-items-center mt-3" th:text="${lesson.title}">
                  Typy zmiennych w java
               </h5>

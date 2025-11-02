@@ -67,6 +67,7 @@ public class LessonController {
     @PutMapping("/api/{lessonId}/complete")
     public ResponseEntity<?> completeLesson(@PathVariable Long lessonId) {
         Long userId = authService.getCurrentUserId();
+        System.err.println("userId: " + userId + " lesson id = " + lessonId + "");
         lessonService.markLessonAsCompleted(lessonId, userId);
         return null;
     }

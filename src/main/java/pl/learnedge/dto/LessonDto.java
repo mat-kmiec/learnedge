@@ -17,4 +17,5 @@ public class LessonDto {
     private int lessonOrder;
     private Course course;
     private String slug;
+    private boolean completed;
 }

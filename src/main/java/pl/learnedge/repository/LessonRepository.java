@@ -1,7 +1,6 @@
 package pl.learnedge.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import pl.learnedge.model.Course;
 import pl.learnedge.model.Lesson;
 
 import java.util.List;

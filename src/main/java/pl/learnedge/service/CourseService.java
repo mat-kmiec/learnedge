@@ -14,10 +14,7 @@ import pl.learnedge.model.Course;
 import pl.learnedge.model.Lesson;
 import pl.learnedge.model.User;
 import pl.learnedge.model.UserCourse;
-import pl.learnedge.repository.CourseRepository;
-import pl.learnedge.repository.LessonRepository;
-import pl.learnedge.repository.UserCourseRepository;
-import pl.learnedge.repository.UserRepository;
+import pl.learnedge.repository.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +28,7 @@ public class CourseService {
     private final LessonRepository lessonRepository;
     private final LessonMapper lessonMapper;
     private final UserRepository userRepository;
+    private final LessonProgressRepository lessonProgressRepository;
 
     public List<CourseDto> getAvailableCoursesForUser(Long userId){
         return courseRepository.findAllCoursesNotEnrolledByUser(userId)
@@ -46,14 +44,30 @@ public class CourseService {
                 .toList();
     }
 
+
     @Transactional
-    public CourseDto getCourseBySlug(String slug){
-        Course course = courseRepository.findBySlug(slug).orElseThrow(CourseNotFoundException::new);
-        List<LessonDto> lessons = lessonRepository.findAllByCourseId(course.getId())
-                .stream()
-                .map(lessonMapper::toDto)
+    public CourseDto getCourseBySlug(String slug, Long userId) {
+        Course course = courseRepository.findBySlug(slug)
+                .orElseThrow(CourseNotFoundException::new);
+
+        List<Lesson> lessons = lessonRepository.findAllByCourseId(course.getId());
+
+
+        List<Long> completedLessonIds = lessonProgressRepository
+                .findCompletedLessonIdsByCourseIdAndUserId(course.getId(), userId);
+
+        List<LessonDto> lessonDtos = lessons.stream()
+                .map(lesson -> {
+                    LessonDto dto = lessonMapper.toDto(lesson);
+
+                    boolean isCompleted = completedLessonIds.contains(lesson.getId());
+                    dto.setCompleted(isCompleted);
+
+                    return dto;
+                })
                 .toList();
-        return courseMapper.toDto(course, lessons);
+
+        return courseMapper.toDto(course, lessonDtos);
     }
 
 

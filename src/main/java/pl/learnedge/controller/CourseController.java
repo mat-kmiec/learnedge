@@ -45,7 +45,8 @@ public class CourseController {
 
     @GetMapping("/kurs/{slug}")
     public String course(@PathVariable String slug, Model model){
-        CourseDto course =  courseService.getCourseBySlug(slug);
+        long userId = authService.getCurrentUserId();
+        CourseDto course =  courseService.getCourseBySlug(slug, userId);
         model.addAttribute("course", course);
         return "course/course";
     }

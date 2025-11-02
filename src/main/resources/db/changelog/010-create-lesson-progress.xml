@@ -12,12 +12,12 @@
 
             <column name="lesson_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_lesson_progress_lesson"
-                             referencedTableName="lesson" referencedColumnNames="id"/>
+                             referencedTableName="lessons" referencedColumnNames="id"/>
             </column>
 
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false" foreignKeyName="fk_lesson_progress_user"
-                             referencedTableName="user" referencedColumnNames="id"/>
+                             referencedTableName="users" referencedColumnNames="id"/>
             </column>
 
             <column name="completed" type="BOOLEAN" defaultValueBoolean="false">
