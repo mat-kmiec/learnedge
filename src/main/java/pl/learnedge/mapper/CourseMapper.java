@@ -32,7 +32,7 @@ public class CourseMapper {
         courseDto.setName(course.getName());
         courseDto.setDescription(course.getDescription());
         courseDto.setDifficulty(course.getDifficulty());
-        courseDto.setProgress(null);
+        courseDto.setProgress(0);
         courseDto.setSlug(course.getSlug());
         return courseDto;
     }
@@ -44,7 +44,7 @@ public class CourseMapper {
         courseDto.setName(course.getName());
         courseDto.setDescription(course.getDescription());
         courseDto.setDifficulty(course.getDifficulty());
-        courseDto.setProgress(null);
+        courseDto.setProgress(0);
         courseDto.setSlug(course.getSlug());
         courseDto.setLessons(lessons);
         return courseDto;

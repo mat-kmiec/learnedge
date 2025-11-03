@@ -39,10 +39,25 @@ public class CourseService {
                 .toList();
    }
 
-   public List<CourseDto> getEnrolledCoursesForUser(Long userId){
-        return userCourseRepository.findAllByUserId(userId)
-                .stream()
-                .map(courseMapper::toDto)
+    public List<CourseDto> getEnrolledCoursesForUser(Long userId) {
+        List<UserCourse> userCourses = userCourseRepository.findAllByUserId(userId);
+
+        return userCourses.stream()
+                .map(userCourse -> {
+                    Course course = userCourse.getCourse();
+                    List<Lesson> lessons = lessonRepository.findAllByCourseId(course.getId());
+
+                    long totalLessons = lessons.size();
+                    if (totalLessons == 0) totalLessons = 1;
+
+                    long completedLessons = lessonProgressRepository.countByUserIdAndLessonInAndCompletedTrue(userId, lessons);
+
+                    double progress = (double) completedLessons / totalLessons * 100;
+
+                    CourseDto dto = courseMapper.toDto(course);
+                    dto.setProgress(progress);
+                    return dto;
+                })
                 .toList();
     }
 

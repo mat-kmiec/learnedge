@@ -64,13 +64,27 @@
                 Zrozum podstawy Javy i naucz się budować aplikacje krok po
                 kroku.
               </p>
-              <div class="progress mb-3">
-                <div class="progress-bar" th:style="'width:' + ${course.progress} + '%'"></div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="small" th:text="${course.progress} + '% ukończono'">65% ukończono</span>
-                <a class="btn btn-sm btn-gradient" th:href="@{/kurs/{slug}(slug=${course.slug})}">Kontynuuj</a>
-              </div>
+                <div class="progress mb-3" >
+                    <div
+                            class="progress-bar"
+                            role="progressbar"
+                            th:style="'width:' + ${course.progress} + '%; background-color: var(--color-accent);'"
+                            th:aria-valuenow="${course.progress}"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                    ></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+  <span class="small text-light" th:text="${#numbers.formatDecimal(course.progress, 0, 0)} + '% ukończono'">
+    65% ukończono
+  </span>
+                    <a
+                            class="btn btn-sm btn-gradient"
+                            th:href="@{/kurs/{slug}(slug=${course.slug})}"
+                    >
+                        Kontynuuj
+                    </a>
+                </div>
             </div>
           </div>
             <div class="col-12" th:if="${#lists.isEmpty(courses)}">

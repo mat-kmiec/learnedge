@@ -31,6 +31,7 @@ public class CourseController {
 
     @GetMapping("/panel")
     public String panel(Model model) {
+
         return loadCourses(model, courseService::getEnrolledCoursesForUser, "dashboard/dashboard");
     }
 

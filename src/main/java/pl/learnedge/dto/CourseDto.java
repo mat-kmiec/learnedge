@@ -16,7 +16,7 @@ public class CourseDto {
     private String name;
     private String description;
     private String difficulty;
-    private Integer progress;
+    private double progress;
     private String slug;
     private List<LessonDto> lessons;
 
