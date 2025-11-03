@@ -98,4 +98,17 @@ public class UserService {
 
         return users.save(user);
     }
+
+    public int getLearningStyleByUserId(Long id) {
+        return users.findById(id)
+                .map(User::getLearningStyle)
+                .map(style -> switch (style.toUpperCase()) {
+                    case "AUDITORY" -> 1;
+                    case "VISUAL" -> 2;
+                    case "KINESTHETIC" -> 3;
+                    default -> 0;
+                })
+                .orElse(0);
+    }
+
 }

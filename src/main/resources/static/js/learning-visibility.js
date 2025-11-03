@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const userLearningStyle = 3; // przykładowo: 1 - słuchowiec, 2 - wzrokowiec, 3 - kinestetyk
+    const userLearningStyle = document.getElementById("userLearningStyle").value; // przykładowo: 1 - słuchowiec, 2 - wzrokowiec, 3 - kinestetyk
 
     document.querySelectorAll("[data-learning]").forEach(el => {
         const attr = el.getAttribute("data-learning");

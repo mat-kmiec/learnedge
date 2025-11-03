@@ -16,6 +16,7 @@ import pl.learnedge.repository.LessonRepository;
 import pl.learnedge.repository.UserRepository;
 import pl.learnedge.service.AuthService;
 import pl.learnedge.service.LessonService;
+import pl.learnedge.service.UserService;
 
 import java.util.List;
 
@@ -28,10 +29,13 @@ public class LessonController {
     private final LessonRepository lessonRepository;
     private final LessonProgressRepository lessonProgressRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/kurs/{course_slug}/{lesson_slug}")
     public String lesson(@PathVariable String course_slug, @PathVariable String lesson_slug, Model model) {
         LessonDto lesson = lessonService.getLessonBySlug(lesson_slug);
+        int userLearningStyle = userService.getLearningStyleByUserId(authService.getCurrentUserId());
+        model.addAttribute("userLearningStyle", userLearningStyle);
         model.addAttribute("lesson", lesson);
         return "course/lesson";
     }
