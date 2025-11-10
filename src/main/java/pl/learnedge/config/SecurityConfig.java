@@ -51,7 +51,8 @@ public class SecurityConfig {
                         "/przypomnij-haslo", "/reset-hasla", "/reset-hasla/**",
                         "/oauth2/**", "/h2-console/**",
                         "/css/**", "/js/**", "/img/**", "/webjars/**",
-                        "/uploads/**"  // Public profile pictures like YouTube/Instagram
+                        "/uploads/**",  // Public profile pictures like YouTube/Instagram
+                        "/api/cookies/**"  // Cookie consent API endpoints
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/rejestracja", "/przypomnij-haslo", "/reset-hasla").permitAll()
                 .anyRequest().authenticated()
