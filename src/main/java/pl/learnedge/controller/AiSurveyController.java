@@ -34,19 +34,26 @@ public class AiSurveyController {
     @ResponseBody
     public ResponseEntity<?> analyzeSurvey(@RequestBody Map<String, String> surveyAnswers) {
         try {
-            // Sprawdź czy AI jest dostępne
-            if (!learningStyleService.isAiAnalysisAvailable()) {
+            log.info("Otrzymano ankietę z {} odpowiedziami", surveyAnswers.size());
+            
+            // Walidacja danych wejściowych
+            if (surveyAnswers == null || surveyAnswers.isEmpty()) {
                 return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Analiza AI jest obecnie niedostępna"));
+                    .body(Map.of("error", "Brak odpowiedzi w ankiecie"));
             }
-
-            // Analizuj odpowiedzi
+            
+            // Analizuj odpowiedzi (automatycznie wybierze AI lub algorytm alternatywny)
             String learningStyle = learningStyleService.analyzeAndSaveLearningStyle(surveyAnswers);
+
+            boolean aiUsed = learningStyleService.isAiAnalysisAvailable();
+            String analysisMethod = aiUsed ? "AI" : "algorytmem alternatywnym";
+
+            log.info("Pomyślnie przeanalizowano styl uczenia: {} (metoda: {})", learningStyle, analysisMethod);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "learningStyle", learningStyle,
-                "message", "Twój styl uczenia został przeanalizowany: " + translateStyle(learningStyle)
+                "message", "Twój styl uczenia został przeanalizowany " + analysisMethod + ": " + translateStyle(learningStyle)
             ));
 
         } catch (Exception e) {
@@ -56,24 +63,7 @@ public class AiSurveyController {
         }
     }
 
-    @PostMapping("/api/survey/manual")
-    @ResponseBody
-    public ResponseEntity<?> saveManualSelection(@RequestBody Map<String, String> request) {
-        try {
-            String selectedStyle = request.get("learningStyle");
-            learningStyleService.saveLearningStyle(selectedStyle);
-
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Styl uczenia został zapisany: " + translateStyle(selectedStyle)
-            ));
-
-        } catch (Exception e) {
-            log.error("Błąd podczas zapisywania stylu uczenia: ", e);
-            return ResponseEntity.badRequest()
-                .body(Map.of("error", "Wystąpił błąd podczas zapisywania"));
-        }
-    }
+    // Manual selection endpoint removed - users must complete survey when AI is unavailable
 
     private String translateStyle(String style) {
         return switch (style) {

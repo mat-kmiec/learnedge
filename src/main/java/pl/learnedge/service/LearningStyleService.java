@@ -43,7 +43,18 @@ public class LearningStyleService {
      */
     public String analyzeAndSaveLearningStyle(Map<String, String> surveyAnswers) {
         try {
-            String analyzedStyle = aiService.analyzeLearningStyle(surveyAnswers);
+            String analyzedStyle;
+            
+            // Sprawdź czy AI jest dostępne
+            if (aiService.isAvailable()) {
+                // Użyj AI do analizy
+                analyzedStyle = aiService.analyzeLearningStyle(surveyAnswers);
+                log.info("Użyto AI do analizy stylu uczenia");
+            } else {
+                // Użyj algorytmu alternatywnego
+                analyzedStyle = analyzeWithAlternativeAlgorithm(surveyAnswers);
+                log.info("Użyto algorytm alternatywny do analizy stylu uczenia");
+            }
             
             // Zapisz przeanalizowany styl
             User currentUser = getAuthenticatedUser();
@@ -53,13 +64,129 @@ public class LearningStyleService {
             // Update the authentication object in session
             updateAuthenticationObject(currentUser);
             
-            log.info("AI przeanalizowało styl uczenia dla użytkownika {}: {}", 
+            log.info("Przeanalizowano styl uczenia dla użytkownika {}: {}", 
                      currentUser.getUsername(), analyzedStyle);
             
             return analyzedStyle;
         } catch (Exception e) {
             log.error("Błąd podczas analizy stylu uczenia: ", e);
             throw new RuntimeException("Nie udało się przeanalizować stylu uczenia", e);
+        }
+    }
+
+    /**
+     * Alternatywny algorytm analizy stylu uczenia (gdy AI niedostępne)
+     */
+    private String analyzeWithAlternativeAlgorithm(Map<String, String> surveyAnswers) {
+        int visualCount = 0;
+        int auditoryCount = 0;
+        int kinestheticCount = 0;
+        
+        log.debug("Analyzing survey with {} answers", surveyAnswers.size());
+        
+        // Policz odpowiedzi dla każdego stylu (pytania od question1 do question20)
+        for (Map.Entry<String, String> entry : surveyAnswers.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            
+            // Pomiń opis tekstowy - będzie analizowany osobno
+            if ("userDescription".equals(key) || value == null) {
+                continue;
+            }
+            
+            switch (value.toLowerCase()) {
+                case "visual":
+                    visualCount++;
+                    break;
+                case "auditory":
+                    auditoryCount++;
+                    break;
+                case "kinesthetic":
+                    kinestheticCount++;
+                    break;
+            }
+        }
+        
+        log.debug("Counts - Visual: {}, Auditory: {}, Kinesthetic: {}", 
+                 visualCount, auditoryCount, kinestheticCount);
+        
+        // Sprawdź czy mamy wystarczająco odpowiedzi
+        int totalAnswers = visualCount + auditoryCount + kinestheticCount;
+        if (totalAnswers < 5) {
+            log.warn("Too few answers provided: {}", totalAnswers);
+            throw new RuntimeException("Za mało odpowiedzi do przeprowadzenia analizy. Proszę odpowiedzieć na więcej pytań.");
+        }
+        
+        // Określ dominujący styl
+        if (visualCount > auditoryCount && visualCount > kinestheticCount) {
+            return "VISUAL";
+        } else if (auditoryCount > visualCount && auditoryCount > kinestheticCount) {
+            return "AUDITORY";
+        } else if (kinestheticCount > visualCount && kinestheticCount > auditoryCount) {
+            return "KINESTHETIC";
+        } else {
+            // W przypadku remisu, użyj opisu tekstowego użytkownika
+            String userDescription = surveyAnswers.get("userDescription");
+            if (userDescription != null && !userDescription.trim().isEmpty()) {
+                String styleFromDescription = analyzeDescriptionForLearningStyle(userDescription);
+                log.debug("Used description analysis due to tie, result: {}", styleFromDescription);
+                return styleFromDescription;
+            }
+            
+            // Jeśli brak opisu, wybierz styl z największą liczbą głosów (nawet przy remisie)
+            if (visualCount >= auditoryCount && visualCount >= kinestheticCount) {
+                return "VISUAL";
+            } else if (auditoryCount >= kinestheticCount) {
+                return "AUDITORY";
+            } else {
+                return "KINESTHETIC";
+            }
+        }
+    }
+    
+    /**
+     * Analizuje opis tekstowy użytkownika aby określić styl uczenia
+     */
+    private String analyzeDescriptionForLearningStyle(String description) {
+        String lowerDescription = description.toLowerCase();
+        
+        // Słowa kluczowe dla każdego stylu
+        String[] visualKeywords = {"obraz", "schemat", "diagram", "rysun", "kolor", "wizualn", "widz", "patrzę"};
+        String[] auditoryKeywords = {"słuch", "muzyk", "głos", "rozmow", "czytam na głos", "słyszę", "dźwięk"};
+        String[] kinestheticKeywords = {"ruch", "praktyk", "ręka", "dotyk", "sport", "ćwicz", "gestykuluj", "robię"};
+        
+        int visualScore = 0;
+        int auditoryScore = 0;
+        int kinestheticScore = 0;
+        
+        // Policz wystąpienia słów kluczowych
+        for (String keyword : visualKeywords) {
+            if (lowerDescription.contains(keyword)) {
+                visualScore++;
+            }
+        }
+        
+        for (String keyword : auditoryKeywords) {
+            if (lowerDescription.contains(keyword)) {
+                auditoryScore++;
+            }
+        }
+        
+        for (String keyword : kinestheticKeywords) {
+            if (lowerDescription.contains(keyword)) {
+                kinestheticScore++;
+            }
+        }
+        
+        // Zwróć dominujący styl
+        if (visualScore > auditoryScore && visualScore > kinestheticScore) {
+            return "VISUAL";
+        } else if (auditoryScore > visualScore && auditoryScore > kinestheticScore) {
+            return "AUDITORY";
+        } else if (kinestheticScore > visualScore && kinestheticScore > auditoryScore) {
+            return "KINESTHETIC";
+        } else {
+            return "VISUAL"; // Domyślnie
         }
     }
 
