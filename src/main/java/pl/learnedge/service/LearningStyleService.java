@@ -21,22 +21,11 @@ public class LearningStyleService {
     private final HuggingFaceAiService aiService;
 
     public void saveLearningStyle(String learningStyle) {
-        User currentUser = getAuthenticatedUser();
-        
-        // Validate learning style
-        if (learningStyle == null || !isValidLearningStyle(learningStyle)) {
-            throw new IllegalArgumentException("Nieprawidłowy styl uczenia się");
-        }
-        
-        currentUser.setLearningStyle(learningStyle);
-        userRepository.save(currentUser);
-        
-        // Update the authentication object in session
-        updateAuthenticationObject(currentUser);
-        
-        log.info("Zapisano styl uczenia się {} dla użytkownika {}", 
-                 learningStyle, currentUser.getUsername());
+        // Metoda została wyłączona - styl uczenia można ustawić tylko poprzez ankietę AI
+        throw new IllegalArgumentException("Styl uczenia się można ustawić wyłącznie poprzez wypełnienie ankiety AI");
     }
+
+
 
     /**
      * Analizuje odpowiedzi z ankiety i automatycznie określa styl uczenia
@@ -197,10 +186,7 @@ public class LearningStyleService {
         return aiService.isAvailable();
     }
 
-    private boolean isValidLearningStyle(String style) {
-        return style.equals("VISUAL") || style.equals("AUDITORY") || 
-               style.equals("KINESTHETIC") || style.equals("MIXED");
-    }
+
 
     private User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

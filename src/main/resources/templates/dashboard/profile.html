@@ -113,7 +113,12 @@
     <div class="profile-section-title">
       <i class="bi bi-lightbulb"></i> Styl uczenia się
     </div>
-    
+        <!-- Ostrzeżenie gdy AI niedostępne -->
+    <div th:if="${not aiAvailable}" class="alert alert-warning mb-4">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <strong>AI jest obecnie niedostępne.</strong> Wypełnij ankietę, która zostanie przeanalizowana specjalnym algorytmem aby ustalić Twój styl uczenia się.
+    </div>
+
     <!-- Success alert (hidden by default) -->
     <div id="learningStyleSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
       <i class="bi bi-check-circle me-2"></i>
@@ -129,39 +134,25 @@
     </div>
     
     <p class="text-light small mb-3">
-      Wybierz swój styl uczenia się ręcznie lub pozwól naszemu botowi AI
-      pomóc Ci go określić na podstawie krótkiej ankiety.
+      Wypełnij ankietę AI aby ustalić swój styl uczenia się na podstawie analizy Twoich preferencji edukacyjnych.
     </p>
     
-    <!-- Ostrzeżenie gdy AI niedostępne -->
-    <div th:if="${not aiAvailable}" class="alert alert-warning mb-4">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      <strong>AI jest obecnie niedostępne.</strong> Możesz wybrać styl ręcznie lub wypełnić ankietę, która zostanie przeanalizowana algorytmem alternatywnym.
-    </div>
 
-    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
-      <!-- Select -->
+    <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+      <!-- Informacja o metodzie ustalania stylu -->
       <div class="flex-fill">
-  <label for="learningStyle" class="form-label mb-1 text-light small"
-    >Wybierz styl ręcznie</label
-  >
-  <select id="learningStyle" class="custom-select-learnedge w-100">
-    <option selected disabled>-- wybierz styl --</option>
-    <option value="VISUAL">👁️ Wzrokowiec</option>
-    <option value="AUDITORY">🎧 Słuchowiec</option>
-    <option value="KINESTHETIC">✋ Kinestetyk</option>
-  </select>
-</div>
+        <p class="text-light small mb-2">
+          <i class="bi bi-info-circle me-2"></i>
+          Styl uczenia się można ustalić wyłącznie poprzez wypełnienie ankiety AI, która przeanalizuje Twoje preferencje edukacyjne.
+        </p>
+      </div>
 
       <!-- Przyciski -->
-      <div class="d-flex flex-column flex-fill flex-md-row gap-2 mt-2 mt-md-4">
-        <button class="btn btn-gradient flex-fill" onclick="saveLearningStyle(); return false;">
-          <i class="bi bi-save me-2"></i> Zapisz styl
-        </button>
+      <div class="d-flex justify-content-center">
         <a
           th:href="@{/ankieta}"
           href="ankieta.html"
-          class="btn btn-outline-primary flex-fill"
+          class="btn btn-gradient"
         >
           <i class="bi bi-robot me-2"></i> Wypełnij ankietę AI
         </a>
@@ -346,58 +337,7 @@
         }
     }
 
-    function saveLearningStyle() {
-        const select = document.getElementById('learningStyle');
-        const learningStyle = select.value;
-        
-        // Hide any previous alerts
-        document.getElementById('learningStyleSuccess').style.display = 'none';
-        document.getElementById('learningStyleError').style.display = 'none';
-        
-        if (!learningStyle || learningStyle === '-- wybierz styl --') {
-            showLearningStyleError('Proszę wybrać styl uczenia się');
-            return;
-        }
 
-        // Get CSRF token
-        const tokenEl = document.querySelector('meta[name="_csrf"]');
-        const headerEl = document.querySelector('meta[name="_csrf_header"]');
-        const csrfToken = tokenEl ? tokenEl.getAttribute('content') : null;
-        const csrfHeader = headerEl ? headerEl.getAttribute('content') : null;
-
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        if (csrfToken && csrfHeader) {
-            headers[csrfHeader] = csrfToken;
-        }
-
-        fetch('/api/profile/learning-style', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ learningStyle: learningStyle }),
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showLearningStyleError('Błąd: ' + data.error);
-            } else {
-                // Update display
-                const styleNames = {
-                    'VISUAL': '👁️ Wzrokowiec',
-                    'AUDITORY': '🎧 Słuchowiec',
-                    'KINESTHETIC': '✋ Kinestetyk'
-                };
-                document.getElementById('currentLearningStyleText').textContent = styleNames[learningStyle];
-                showLearningStyleSuccess('Styl uczenia się został zapisany!');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showLearningStyleError('Wystąpił błąd podczas zapisywania stylu uczenia się');
-        });
-    }
 
     function showLearningStyleSuccess(message) {
         const alert = document.getElementById('learningStyleSuccess');
@@ -511,30 +451,7 @@
     return false;
   }
 
-  // Set current learning style when page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    const currentStyleElement = document.getElementById('currentLearningStyleText');
-    const selectElement = document.getElementById('learningStyle');
-    
-    if (currentStyleElement && selectElement) {
-      const currentStyleText = currentStyleElement.textContent.trim();
-      
-      // Map display text to values
-      let currentStyleValue = null;
-      if (currentStyleText.includes('Wzrokowiec')) {
-        currentStyleValue = 'VISUAL';
-      } else if (currentStyleText.includes('Słuchowiec')) {
-        currentStyleValue = 'AUDITORY';
-      } else if (currentStyleText.includes('Kinestetyk')) {
-        currentStyleValue = 'KINESTHETIC';
-      }
-      
-      // Set the select value
-      if (currentStyleValue) {
-        selectElement.value = currentStyleValue;
-      }
-    }
-  });
+
     </script>
   </body>
 </html>

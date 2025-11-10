@@ -24,7 +24,7 @@ public class AiSurveyController {
         model.addAttribute("aiAvailable", aiAvailable);
 
         if (!aiAvailable) {
-            model.addAttribute("message", "Analiza AI jest obecnie niedostępna. Możesz wybrać styl uczenia ręcznie.");
+            model.addAttribute("message", "Analiza AI jest obecnie niedostępna. Wypełnij ankietę, która zostanie przeanalizowana algorytmem alternatywnym.");
         }
 
         return "dashboard/ankieta";
