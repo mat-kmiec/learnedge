@@ -99,11 +99,11 @@ public class LearningStyleService {
         log.debug("Counts - Visual: {}, Auditory: {}, Kinesthetic: {}", 
                  visualCount, auditoryCount, kinestheticCount);
         
-        // Sprawdź czy mamy wystarczająco odpowiedzi
+        // Sprawdź czy mamy przynajmniej jedną odpowiedź
         int totalAnswers = visualCount + auditoryCount + kinestheticCount;
-        if (totalAnswers < 5) {
-            log.warn("Too few answers provided: {}", totalAnswers);
-            throw new RuntimeException("Za mało odpowiedzi do przeprowadzenia analizy. Proszę odpowiedzieć na więcej pytań.");
+        if (totalAnswers < 1) {
+            log.warn("No answers provided: {}", totalAnswers);
+            throw new RuntimeException("Nie podano żadnych odpowiedzi. Proszę odpowiedzieć na przynajmniej jedno pytanie.");
         }
         
         // Określ dominujący styl
