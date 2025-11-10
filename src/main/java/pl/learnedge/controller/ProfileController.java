@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.learnedge.dto.UpdateProfileDto;
 import pl.learnedge.model.User;
+import pl.learnedge.service.LearningStyleService;
 import pl.learnedge.service.ProfilePictureService;
 import pl.learnedge.service.UserService;
 
@@ -23,6 +24,7 @@ public class ProfileController {
 
     private final UserService userService;
     private final ProfilePictureService profilePictureService;
+    private final LearningStyleService learningStyleService;
 
     @GetMapping("/profil")
     public String profile(@AuthenticationPrincipal User user, Model model) {
@@ -30,7 +32,11 @@ public class ProfileController {
         profileDto.setFirstName(user.getFirstName());
         profileDto.setLastName(user.getLastName());
         
+        // Sprawdź dostępność AI
+        boolean aiAvailable = learningStyleService.isAiAnalysisAvailable();
+        
         model.addAttribute("profile", profileDto);
+        model.addAttribute("aiAvailable", aiAvailable);
         return "dashboard/profile";
     }
 
