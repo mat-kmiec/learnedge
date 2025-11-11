@@ -6,440 +6,593 @@
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>LearnEdge – Ankieta AI</title>
-    <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.ico}" href="../../static/img/favicon.ico"/>
-
-    <!-- Bootstrap -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-
-    <!-- Twój styl -->
-    <link
-      th:href="@{/css/pages/dashboard.css}"
-      href="../../static/css/pages/dashboard.css"
-      rel="stylesheet"
-    />
-
-
+    <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.ico}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link th:href="@{/css/pages/dashboard.css}" rel="stylesheet"/>
+    <style>
+      .question-container {
+        display: none;
+        min-height: 400px;
+      }
+      .question-container.active {
+        display: block;
+        animation: fadeIn 0.4s ease-out;
+      }
+      @keyframes fadeIn {
+        from { 
+          opacity: 0; 
+          transform: translateX(20px);
+        }
+        to { 
+          opacity: 1; 
+          transform: translateX(0);
+        }
+      }
+      .progress-bar-container {
+        margin-bottom: 40px;
+        padding: 20px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 12px;
+      }
+      .progress {
+        height: 8px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .question-number {
+        font-size: 0.85rem;
+        color: var(--accent-color);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+      }
+      .question-container h5 {
+        font-size: 1.5rem;
+        line-height: 1.5;
+        color: #fff;
+        margin-bottom: 30px;
+      }
+      .answer-option {
+        display: block;
+        padding: 18px 24px;
+        margin: 12px 0;
+        border: 2px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        background: rgba(255,255,255,0.05);
+        font-size: 1.05rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .answer-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent-color);
+        transform: scaleY(0);
+        transition: transform 0.25s ease;
+      }
+      .answer-option:hover {
+        border-color: var(--accent-color);
+        background: rgba(255,255,255,0.1);
+        transform: translateX(4px);
+      }
+      .answer-option:hover::before {
+        transform: scaleY(1);
+      }
+      .answer-option.selected {
+        border-color: var(--accent-color);
+        background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.25), rgba(var(--accent-rgb), 0.15));
+        box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.3);
+      }
+      .answer-option.selected::before {
+        transform: scaleY(1);
+      }
+      .answer-option input[type="radio"] {
+        margin-right: 15px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--accent-color);
+      }
+      .answer-option label {
+        cursor: pointer;
+        user-select: none;
+      }
+      .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+      }
+      .btn-nav {
+        flex: 1;
+        min-width: 120px;
+        padding: 14px 20px;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      .btn-nav:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      }
+      .btn-outline-secondary {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.8);
+      }
+      .btn-outline-secondary:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.3);
+        color: #fff;
+      }
+      textarea.form-control {
+        background: rgba(255,255,255,0.05);
+        border: 2px solid rgba(255,255,255,0.15);
+        color: #fff;
+        padding: 15px;
+        font-size: 1rem;
+        border-radius: 10px;
+        resize: vertical;
+      }
+      textarea.form-control:focus {
+        background: rgba(255,255,255,0.08);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+      }
+      textarea.form-control::placeholder {
+        color: rgba(255,255,255,0.4);
+      }
+    </style>
   </head>
 
   <body>
-    <!-- Include navbar fragment -->
     <div th:replace="~{fragments/nav :: navbar}"></div>
 
     <div class="container py-5">
       <div class="dashboard-container">
-        <div class="dashboard-header text-center mb-5">
+        <div class="dashboard-header text-center mb-4">
           <h1 class="mb-2">Ankieta AI – Poznaj swój styl uczenia się</h1>
           <p class="text-light opacity-75 small mb-0">
-            Odpowiedz na kilka pytań, a nasz bot AI dopasuje styl nauki najlepiej
-            odpowiadający Twoim preferencjom.
+            Odpowiedz na pytania, a AI dopasuje najlepszy styl nauki dla Ciebie
           </p>
-          
-          <!-- Status AI -->
-          <div th:if="${not aiAvailable}" class="alert alert-warning mt-3">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <span>Analiza AI jest obecnie niedostępna. Wypełnij ankietę poniżej - przeanalizujemy Twoje odpowiedzi przy pomocy specjalnego algorytmu.</span>
-          </div>
           
           <div th:if="${aiAvailable}" class="alert alert-success mt-3">
             <i class="bi bi-robot me-2"></i>
-            AI jest gotowe do analizy Twojego stylu uczenia!
+            AI jest gotowe do analizy!
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-container">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="small">Postęp</span>
+            <span class="small"><span id="currentQuestion">1</span> / <span id="totalQuestions">13</span></span>
+          </div>
+          <div class="progress">
+            <div id="progressBar" class="progress-bar bg-accent" role="progressbar" style="width: 8%"></div>
           </div>
         </div>
 
         <form id="learningStyleForm">
           <!-- Pytanie 1 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">
-              1. Kiedy uczysz się czegoś nowego, najłatwiej zapamiętujesz gdy...
-            </h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q1" value="visual" />
-              <label class="form-check-label">widzę schemat lub obrazek</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q1" value="auditory" />
-              <label class="form-check-label">ktoś mi to tłumaczy</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q1" value="kinesthetic" />
-              <label class="form-check-label">mogę to sam wypróbować</label>
-            </div>
+          <div class="question-container active" data-question="1">
+            <div class="question-number">Pytanie 1 z 20</div>
+            <h5 class="fw-bold mb-4">Kiedy uczysz się czegoś nowego, najłatwiej zapamiętujesz gdy...</h5>
+            <label class="answer-option">
+              <input type="radio" name="q1" value="visual"/>
+              widzę schemat lub obrazek
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q1" value="auditory"/>
+              ktoś mi to tłumaczy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q1" value="kinesthetic"/>
+              mogę to sam wypróbować
+            </label>
           </div>
 
           <!-- Pytanie 2 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">2. Co najczęściej robisz w czasie nauki?</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q2" value="visual" />
-              <label class="form-check-label">robię notatki i rysunki</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q2" value="auditory" />
-              <label class="form-check-label">czytam na głos lub słucham nagrań</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q2" value="kinesthetic" />
-              <label class="form-check-label">gestykuluję lub poruszam się</label>
-            </div>
+          <div class="question-container" data-question="2">
+            <div class="question-number">Pytanie 2 z 20</div>
+            <h5 class="fw-bold mb-4">Co najczęściej robisz w czasie nauki?</h5>
+            <label class="answer-option">
+              <input type="radio" name="q2" value="visual"/>
+              robię notatki i rysunki
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q2" value="auditory"/>
+              czytam na głos lub słucham nagrań
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q2" value="kinesthetic"/>
+              gestykuluję lub poruszam się
+            </label>
           </div>
 
           <!-- Pytanie 3 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">3. Podczas prezentacji wolisz gdy:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q3" value="visual" />
-              <label class="form-check-label">pokazywane są slajdy i grafiki</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q3" value="auditory" />
-              <label class="form-check-label">prowadzący mówi płynnie i wyraźnie</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q3" value="kinesthetic" />
-              <label class="form-check-label">możesz coś robić rękami lub poruszać się</label>
-            </div>
+          <div class="question-container" data-question="3">
+            <div class="question-number">Pytanie 3 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas prezentacji wolisz gdy:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q3" value="visual"/>
+              pokazywane są slajdy i grafiki
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q3" value="auditory"/>
+              prowadzący mówi płynnie i wyraźnie
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q3" value="kinesthetic"/>
+              możesz coś robić rękami lub poruszać się
+            </label>
           </div>
 
           <!-- Pytanie 4 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">4. Kiedy tłumaczysz drogę komuś:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q4" value="visual" />
-              <label class="form-check-label">rysujesz mapkę lub pokazujesz</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q4" value="auditory" />
-              <label class="form-check-label">dokładnie opisujesz słowami</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q4" value="kinesthetic" />
-              <label class="form-check-label">gestykulujesz i wskazujesz kierunki</label>
-            </div>
+          <div class="question-container" data-question="4">
+            <div class="question-number">Pytanie 4 z 20</div>
+            <h5 class="fw-bold mb-4">Kiedy tłumaczysz drogę komuś:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q4" value="visual"/>
+              rysujesz mapkę lub pokazujesz
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q4" value="auditory"/>
+              dokładnie opisujesz słowami
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q4" value="kinesthetic"/>
+              gestykulujesz i wskazujesz kierunki
+            </label>
           </div>
 
           <!-- Pytanie 5 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">5. W wolnym czasie najchętniej:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q5" value="visual" />
-              <label class="form-check-label">czytam książki lub oglądam filmy</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q5" value="auditory" />
-              <label class="form-check-label">słucham muzyki lub podcastów</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q5" value="kinesthetic" />
-              <label class="form-check-label">uprawiam sport lub hobby manualne</label>
-            </div>
+          <div class="question-container" data-question="5">
+            <div class="question-number">Pytanie 5 z 20</div>
+            <h5 class="fw-bold mb-4">W wolnym czasie najchętniej:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q5" value="visual"/>
+              czytam książki lub oglądam filmy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q5" value="auditory"/>
+              słucham muzyki lub podcastów
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q5" value="kinesthetic"/>
+              uprawiam sport lub hobby manualne
+            </label>
           </div>
 
           <!-- Pytanie 6 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">6. Gdy muszę zapamiętać numer telefonu:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q6" value="visual" />
-              <label class="form-check-label">zapisuję go lub wyobrażam sobie cyfry</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q6" value="auditory" />
-              <label class="form-check-label">powtarzam go sobie na głos</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q6" value="kinesthetic" />
-              <label class="form-check-label">wystukuję rytm cyframi</label>
-            </div>
+          <div class="question-container" data-question="6">
+            <div class="question-number">Pytanie 6 z 20</div>
+            <h5 class="fw-bold mb-4">Gdy muszę zapamiętać numer telefonu:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q6" value="visual"/>
+              zapisuję go lub wyobrażam sobie cyfry
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q6" value="auditory"/>
+              powtarzam go sobie na głos
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q6" value="kinesthetic"/>
+              wystukuję rytm cyframi
+            </label>
           </div>
 
           <!-- Pytanie 7 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">7. Podczas nauki języka obcego wolę:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q7" value="visual" />
-              <label class="form-check-label">czytać teksty i oglądać napisy</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q7" value="auditory" />
-              <label class="form-check-label">słuchać nagrań i rozmawiać</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q7" value="kinesthetic" />
-              <label class="form-check-label">ćwiczyć przez pisanie i gesty</label>
-            </div>
+          <div class="question-container" data-question="7">
+            <div class="question-number">Pytanie 7 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas nauki języka obcego wolę:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q7" value="visual"/>
+              czytać teksty i oglądać napisy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q7" value="auditory"/>
+              słuchać nagrań i rozmawiać
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q7" value="kinesthetic"/>
+              ćwiczyć przez pisanie i gesty
+            </label>
           </div>
 
           <!-- Pytanie 8 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">8. W sklepie najłatwiej znajduję produkty gdy:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q8" value="visual" />
-              <label class="form-check-label">mam listę zapisaną lub pamiętam gdzie są</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q8" value="auditory" />
-              <label class="form-check-label">pytam sprzedawcę</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q8" value="kinesthetic" />
-              <label class="form-check-label">przechodzę po sklepie i szukam</label>
-            </div>
+          <div class="question-container" data-question="8">
+            <div class="question-number">Pytanie 8 z 20</div>
+            <h5 class="fw-bold mb-4">W sklepie najłatwiej znajduję produkty gdy:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q8" value="visual"/>
+              mam listę zapisaną lub pamiętam gdzie są
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q8" value="auditory"/>
+              pytam sprzedawcę
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q8" value="kinesthetic"/>
+              przechodzę po sklepie i szukam
+            </label>
           </div>
 
           <!-- Pytanie 9 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">9. Przy rozwiązywaniu problemów matematycznych:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q9" value="visual" />
-              <label class="form-check-label">rysuję schematy i wykresy</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q9" value="auditory" />
-              <label class="form-check-label">dyskutuję z innymi lub mówię na głos</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q9" value="kinesthetic" />
-              <label class="form-check-label">używam klocków, liczydła lub palców</label>
-            </div>
+          <div class="question-container" data-question="9">
+            <div class="question-number">Pytanie 9 z 20</div>
+            <h5 class="fw-bold mb-4">Przy rozwiązywaniu problemów matematycznych:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q9" value="visual"/>
+              rysuję schematy i wykresy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q9" value="auditory"/>
+              dyskutuję z innymi lub mówię na głos
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q9" value="kinesthetic"/>
+              używam klocków, liczydła lub palców
+            </label>
           </div>
 
           <!-- Pytanie 10 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">10. Gdy się stresuję przed egzaminem:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q10" value="visual" />
-              <label class="form-check-label">przeglądam notatki i podsumowania</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q10" value="auditory" />
-              <label class="form-check-label">rozmawiam z kimś o materiale</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q10" value="kinesthetic" />
-              <label class="form-check-label">chodzę lub ruszam się</label>
-            </div>
+          <div class="question-container" data-question="10">
+            <div class="question-number">Pytanie 10 z 20</div>
+            <h5 class="fw-bold mb-4">Gdy się stresuję przed egzaminem:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q10" value="visual"/>
+              przeglądam notatki i podsumowania
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q10" value="auditory"/>
+              rozmawiam z kimś o materiale
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q10" value="kinesthetic"/>
+              chodzę lub ruszam się
+            </label>
           </div>
 
           <!-- Pytanie 11 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">11. Najlepiej koncentruję się gdy:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q11" value="visual" />
-              <label class="form-check-label">mam uporządkowane miejsce pracy</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q11" value="auditory" />
-              <label class="form-check-label">jest cicho lub gra spokojna muzyka</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q11" value="kinesthetic" />
-              <label class="form-check-label">mogę się ruszać lub mam coś w rękach</label>
-            </div>
+          <div class="question-container" data-question="11">
+            <div class="question-number">Pytanie 11 z 20</div>
+            <h5 class="fw-bold mb-4">Najlepiej koncentruję się gdy:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q11" value="visual"/>
+              mam uporządkowane miejsce pracy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q11" value="auditory"/>
+              jest cicho lub gra spokojna muzyka
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q11" value="kinesthetic"/>
+              mogę się ruszać lub mam coś w rękach
+            </label>
           </div>
 
           <!-- Pytanie 12 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">12. Podczas robienia notatek:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q12" value="visual" />
-              <label class="form-check-label">używam kolorów, podkreśleń i schematów</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q12" value="auditory" />
-              <label class="form-check-label">przepisuję lub nagrywam własne tłumaczenia</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q12" value="kinesthetic" />
-              <label class="form-check-label">piszę szybko, często bazgrołami</label>
-            </div>
+          <div class="question-container" data-question="12">
+            <div class="question-number">Pytanie 12 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas robienia notatek:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q12" value="visual"/>
+              używam kolorów, podkreśleń i schematów
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q12" value="auditory"/>
+              przepisuję lub nagrywam własne tłumaczenia
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q12" value="kinesthetic"/>
+              piszę szybko, często bazgrołami
+            </label>
           </div>
 
           <!-- Pytanie 13 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">13. Przy montażu mebli z instrukcją:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q13" value="visual" />
-              <label class="form-check-label">dokładnie studiuję rysunki</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q13" value="auditory" />
-              <label class="form-check-label">proszę kogoś o pomoc lub tłumaczenie</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q13" value="kinesthetic" />
-              <label class="form-check-label">zaczynam składać metodą prób i błędów</label>
-            </div>
+          <div class="question-container" data-question="13">
+            <div class="question-number">Pytanie 13 z 20</div>
+            <h5 class="fw-bold mb-4">Przy montażu mebli z instrukcją:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q13" value="visual"/>
+              dokładnie studiuję rysunki
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q13" value="auditory"/>
+              proszę kogoś o pomoc lub tłumaczenie
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q13" value="kinesthetic"/>
+              zaczynam składać metodą prób i błędów
+            </label>
           </div>
 
           <!-- Pytanie 14 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">14. Jeśli zapominam gdzie położyłem klucze:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q14" value="visual" />
-              <label class="form-check-label">przeglądam wzrokiem wszystkie miejsca</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q14" value="auditory" />
-              <label class="form-check-label">próbuję sobie przypomnieć gdzie je słyszałem</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q14" value="kinesthetic" />
-              <label class="form-check-label">szukam wszędzie rękami</label>
-            </div>
+          <div class="question-container" data-question="14">
+            <div class="question-number">Pytanie 14 z 20</div>
+            <h5 class="fw-bold mb-4">Kiedy uczę się nowego słowa:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q14" value="visual"/>
+              widzę je napisane i wizualizuję
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q14" value="auditory"/>
+              powtarzam je głośno kilka razy
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q14" value="kinesthetic"/>
+              zapisuję je lub układam z liter
+            </label>
           </div>
 
           <!-- Pytanie 15 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">15. W restauracji najczęściej:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q15" value="visual" />
-              <label class="form-check-label">czytam menu i patrzę na zdjęcia dań</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q15" value="auditory" />
-              <label class="form-check-label">pytam kelnera o rekomendacje</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q15" value="kinesthetic" />
-              <label class="form-check-label">zamawiam to co już znam i lubiję</label>
-            </div>
+          <div class="question-container" data-question="15">
+            <div class="question-number">Pytanie 15 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas oglądania filmu edukacyjnego:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q15" value="visual"/>
+              koncentruję się na obrazach i animacjach
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q15" value="auditory"/>
+              najbardziej pamiętam komentarz lektora
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q15" value="kinesthetic"/>
+              chcę spróbować tego, co pokazano
+            </label>
           </div>
 
           <!-- Pytanie 16 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">16. Podczas czytania książki:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q16" value="visual" />
-              <label class="form-check-label">wyobrażam sobie sceny jak film</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q16" value="auditory" />
-              <label class="form-check-label">słyszę głosy bohaterów w głowie</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q16" value="kinesthetic" />
-              <label class="form-check-label">odczuwam emocje i napięcie</label>
-            </div>
+          <div class="question-container" data-question="16">
+            <div class="question-number">Pytanie 16 z 20</div>
+            <h5 class="fw-bold mb-4">Gdy spotykam nową osobę, najlepiej zapamiętam:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q16" value="visual"/>
+              jej wygląd i twarz
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q16" value="auditory"/>
+              jej imię i głos
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q16" value="kinesthetic"/>
+              jak się czułem podczas spotkania
+            </label>
           </div>
 
           <!-- Pytanie 17 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">17. Gdy uczę się nowego programu komputerowego:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q17" value="visual" />
-              <label class="form-check-label">czytam instrukcje i patrzę na screenshoty</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q17" value="auditory" />
-              <label class="form-check-label">proszę kogoś żeby mi pokazał</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q17" value="kinesthetic" />
-              <label class="form-check-label">eksperymentuję i klikam na wszystko</label>
-            </div>
+          <div class="question-container" data-question="17">
+            <div class="question-number">Pytanie 17 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas czytania książki wolę:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q17" value="visual"/>
+              wyobrażać sobie scenę w myślach
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q17" value="auditory"/>
+              czytać ze słyszeniem słów w głowie
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q17" value="kinesthetic"/>
+              czuć emocje i napięcie akcji
+            </label>
           </div>
 
           <!-- Pytanie 18 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">18. Na spotkaniu grupowym najchętniej:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q18" value="visual" />
-              <label class="form-check-label">robię notatki i patrzę na tablicę</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q18" value="auditory" />
-              <label class="form-check-label">uczestniczę w dyskusji</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q18" value="kinesthetic" />
-              <label class="form-check-label">przesiadam się lub ruszam przedmiotami</label>
-            </div>
+          <div class="question-container" data-question="18">
+            <div class="question-number">Pytanie 18 z 20</div>
+            <h5 class="fw-bold mb-4">Kiedy muszę zapamiętać listę rzeczy do zrobienia:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q18" value="visual"/>
+              piszę listę lub robię mind mapę
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q18" value="auditory"/>
+              powtarzam sobie na głos lub nagrywam
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q18" value="kinesthetic"/>
+              układam zadania fizycznie (karteczki)
+            </label>
           </div>
 
           <!-- Pytanie 19 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">19. Gdy muszę zapamiętać listę zakupów:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q19" value="visual" />
-              <label class="form-check-label">zapisuję na papierze lub w telefonie</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q19" value="auditory" />
-              <label class="form-check-label">powtarzam sobie na głos</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q19" value="kinesthetic" />
-              <label class="form-check-label">wyobrażam sobie chodzenie po sklepie</label>
-            </div>
+          <div class="question-container" data-question="19">
+            <div class="question-number">Pytanie 19 z 20</div>
+            <h5 class="fw-bold mb-4">Na wykładzie najlepiej uczę się gdy:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q19" value="visual"/>
+              mam prezentację i slajdy do podglądu
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q19" value="auditory"/>
+              słucham wykładowcy i dyskusji
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q19" value="kinesthetic"/>
+              mogę robić ćwiczenia i eksperymenty
+            </label>
           </div>
 
           <!-- Pytanie 20 -->
-          <div class="survey-question">
-            <h6 class="fw-bold mb-3">20. Podczas oglądania filmu edukacyjnego:</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q20" value="visual" />
-              <label class="form-check-label">skupiam się na obrazie i napisach</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q20" value="auditory" />
-              <label class="form-check-label">słucham komentarza i dialogów</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="q20" value="kinesthetic" />
-              <label class="form-check-label">robię notatki lub gestykuluję</label>
+          <div class="question-container" data-question="20">
+            <div class="question-number">Pytanie 20 z 20</div>
+            <h5 class="fw-bold mb-4">Podczas nauki na egzamin wolę:</h5>
+            <label class="answer-option">
+              <input type="radio" name="q20" value="visual"/>
+              czytać podręczniki i przeglądać notatki
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q20" value="auditory"/>
+              słuchać nagrań lub dyskutować z innymi
+            </label>
+            <label class="answer-option">
+              <input type="radio" name="q20" value="kinesthetic"/>
+              robić quizy i rozwiązywać zadania praktyczne
+            </label>
+          </div>
+
+          <!-- Opis tekstowy (opcjonalny - na końcu) -->
+          <div class="question-container" data-question="21">
+            <div class="question-number">Dodatkowy opis (opcjonalnie)</div>
+            <h5 class="fw-bold mb-4">Opisz swoimi słowami, jak najchętniej się uczysz:</h5>
+            <textarea 
+              class="form-control" 
+              name="userDescription" 
+              rows="5" 
+              placeholder="Np. Lubię oglądać filmy edukacyjne i czytać książki z ilustracjami..."></textarea>
+            <div class="text-muted small mt-2">
+              <i class="bi bi-info-circle"></i>
+              Ten opis pomoże AI lepiej określić Twój styl uczenia
             </div>
           </div>
 
-          <!-- Opis tekstowy - tylko gdy AI dostępne -->
-          <div th:if="${aiAvailable}" class="survey-question">
-            <h6 class="fw-bold mb-3">
-              21. Opisz siebie lub swoje podejście do nauki:
-            </h6>
-            <textarea
-              name="userDescription"
-              id="userDescription"
-              class="form-control"
-              rows="4"
-              placeholder="Np. Lubię notatki, uczę się przez praktykę, mam dobrą pamięć wzrokową..."
-            ></textarea>
-          </div>
-
-          <!-- Przycisk -->
-          <div class="text-center mt-4">
-            <button th:if="${aiAvailable}" type="submit" class="btn btn-gradient px-5 py-2">
-              <i class="bi bi-robot me-2"></i> Przeanalizuj z AI
+          <!-- Navigation buttons -->
+          <div class="navigation-buttons">
+            <button type="button" class="btn btn-secondary btn-nav" id="prevBtn" onclick="changeQuestion(-1)">
+              <i class="bi bi-arrow-left me-2"></i>Wstecz
             </button>
-            
-            <!-- Przycisk gdy AI niedostępne -->
-            <button th:unless="${aiAvailable}" type="submit" class="btn btn-primary px-5 py-2">
-              <i class="bi bi-clipboard-check me-2"></i> Przeanalizuj ankietę
+            <button type="button" class="btn btn-outline-secondary btn-nav" id="skipBtn" onclick="skipQuestion()">
+              <i class="bi bi-skip-forward me-2"></i>Pomiń
+            </button>
+            <button type="button" class="btn btn-primary btn-nav" id="nextBtn" onclick="changeQuestion(1)">
+              Dalej<i class="bi bi-arrow-right ms-2"></i>
+            </button>
+            <button type="submit" class="btn btn-accent btn-nav" id="submitBtn" style="display: none;">
+              <i class="bi bi-check-circle me-2"></i>Zakończ ankietę
             </button>
           </div>
         </form>
 
-        <!-- Wynik AI -->
-        <div id="aiResult" class="ai-result text-center mt-5 d-none">
-          <h4 class="mb-3"><i class="bi bi-stars me-2"></i>Dopasowano styl!</h4>
-          <p id="aiOutput" class="mb-4"></p>
-          <button
-            id="continueBtn"
-            class="btn btn-gradient px-4 py-2"
-            onclick="window.location.href='/panel'"
-          >
-            <i class="bi bi-arrow-right-circle me-2"></i> Kontynuuj
-          </button>
+        <!-- Wynik -->
+        <div id="aiResult" class="d-none">
+          <div class="alert alert-success text-center">
+            <h4 class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Analiza zakończona!</h4>
+            <div id="aiOutput" class="fs-5"></div>
+            <a href="/profil" class="btn btn-accent mt-3">Przejdź do profilu</a>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
-      // Pobierz CSRF token
+      let currentQuestionIndex = 1;
+      const totalQuestions = 21; // 20 pytań + opis tekstowy
+      
+      // CSRF token
       function getCsrfToken() {
         const csrfMeta = document.querySelector('meta[name="_csrf"]');
         return csrfMeta ? csrfMeta.getAttribute('content') : '';
@@ -450,106 +603,166 @@
         return csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : 'X-CSRF-TOKEN';
       }
 
-      // AI Analysis
-      document
-        .getElementById("learningStyleForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
+      // Nawigacja między pytaniami
+      function showQuestion(index) {
+        document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+        const question = document.querySelector(`[data-question="${index}"]`);
+        if (question) {
+          question.classList.add('active');
+          currentQuestionIndex = index;
+          updateProgress();
+          updateButtons();
+        }
+      }
 
-          const formData = new FormData(this);
-          const surveyData = {};
-          
-          // Zbierz odpowiedzi z wszystkich pytań (q1-q20)
-          for (let i = 1; i <= 20; i++) {
-            const answer = formData.get(`q${i}`);
-            if (answer) {
-              surveyData[`question${i}`] = answer;
-            }
+      function changeQuestion(direction) {
+        const newIndex = currentQuestionIndex + direction;
+        if (newIndex >= 1 && newIndex <= totalQuestions) {
+          showQuestion(newIndex);
+        }
+      }
+
+      function skipQuestion() {
+        changeQuestion(1);
+      }
+
+      function updateProgress() {
+        const progress = (currentQuestionIndex / totalQuestions) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('currentQuestion').textContent = currentQuestionIndex;
+        document.getElementById('totalQuestions').textContent = totalQuestions;
+      }
+
+      function updateButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const skipBtn = document.getElementById('skipBtn');
+
+        prevBtn.style.display = currentQuestionIndex === 1 ? 'none' : 'block';
+        
+        if (currentQuestionIndex === totalQuestions) {
+          nextBtn.style.display = 'none';
+          skipBtn.style.display = 'none';
+          submitBtn.style.display = 'block';
+        } else {
+          nextBtn.style.display = 'block';
+          skipBtn.style.display = 'block';
+          submitBtn.style.display = 'none';
+        }
+      }
+
+      // Zaznaczanie odpowiedzi
+      document.querySelectorAll('.answer-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+          // Jeśli kliknięto bezpośrednio w radio button, nie rób nic (zostanie obsłużone normalnie)
+          if (e.target.tagName === 'INPUT') {
+            return;
           }
           
-          // Dodaj opis tekstowy
-          const userDescription = formData.get("userDescription");
-          if (userDescription && userDescription.trim()) {
-            surveyData["userDescription"] = userDescription.trim();
-          }
-          
-          // Sprawdź czy użytkownik odpowiedział na przynajmniej jedno pytanie
-          const answeredQuestions = Object.keys(surveyData).filter(key => key.startsWith('question')).length;
-          
-          // Różne walidacje w zależności od dostępności AI
-          const aiAvailable = document.querySelector('.alert-success') !== null;
-          
-          if (aiAvailable) {
-            // Gdy AI dostępne - wymagaj przynajmniej jedno pytanie LUB opis
-            if (answeredQuestions === 0 && (!surveyData.userDescription || surveyData.userDescription.length < 10)) {
-              alert('Proszę odpowiedzieć na przynajmniej jedno pytanie lub podać opis swoich preferencji uczenia się.');
-              const submitBtn = this.querySelector('button[type="submit"]');
-              submitBtn.disabled = false;
-              return;
-            }
-          } else {
-            // Gdy AI niedostępne - wymagaj przynajmniej jedno pytanie (bez opisu)
-            if (answeredQuestions === 0) {
-              alert('Proszę odpowiedzieć na przynajmniej jedno pytanie z ankiety.');
-              const submitBtn = this.querySelector('button[type="submit"]');
-              submitBtn.disabled = false;
-              return;
-            }
-          }
-          
-          console.log(`Wysyłanie ankiety z ${answeredQuestions} odpowiedziami:`, surveyData);
-
-          try {
-            // Pokaż loading
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Analizuję...';
-            submitBtn.disabled = true;
-
-            // Przygotuj headers z CSRF
-            const headers = {
-              'Content-Type': 'application/json',
-            };
+          const radio = this.querySelector('input[type="radio"]');
+          if (radio) {
+            radio.checked = true;
             
-            const csrfToken = getCsrfToken();
-            if (csrfToken) {
-              headers[getCsrfHeader()] = csrfToken;
-            }
-
-            // Wyślij do API
-            const response = await fetch('/api/survey/analyze', {
-              method: 'POST',
-              headers: headers,
-              body: JSON.stringify(surveyData)
+            // Usuń selected z innych opcji w tej samej grupie
+            const name = radio.name;
+            document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+              r.closest('.answer-option').classList.remove('selected');
             });
+            this.classList.add('selected');
+          }
+        });
+      });
+      
+      // Obsługa bezpośredniego kliknięcia w radio button
+      document.querySelectorAll('.answer-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const name = this.name;
+          document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+            r.closest('.answer-option').classList.remove('selected');
+          });
+          this.closest('.answer-option').classList.add('selected');
+        });
+      });
 
-            const result = await response.json();
+      // Wysyłanie formularza
+      document.getElementById('learningStyleForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            if (result.success) {
-              // Ukryj formularz, pokaż wynik
-              document.getElementById("learningStyleForm").classList.add("d-none");
-              document.getElementById("aiResult").classList.remove("d-none");
+        const formData = new FormData(this);
+        const surveyData = {};
+        
+        // Zbierz odpowiedzi z wszystkich pytań (q1-q20)
+        for (let i = 1; i <= 20; i++) {
+          const answer = formData.get(`q${i}`);
+          if (answer) {
+            surveyData[`question${i}`] = answer;
+          }
+        }
+        
+        // Dodaj opis tekstowy
+        const userDescription = formData.get("userDescription");
+        if (userDescription && userDescription.trim()) {
+          surveyData["userDescription"] = userDescription.trim();
+        }
+        
+        const answeredQuestions = Object.keys(surveyData).filter(key => key.startsWith('question')).length;
+        
+        // Walidacja
+        if (answeredQuestions === 0 && (!surveyData.userDescription || surveyData.userDescription.length < 10)) {
+          alert('Proszę odpowiedzieć na przynajmniej jedno pytanie lub podać opis.');
+          return;
+        }
 
-              document.getElementById("aiOutput").innerHTML = 
-                `<strong class="text-accent">${result.message}</strong>`;
-            } else {
-              console.error('Błąd analizy:', result);
-              alert('Błąd: ' + (result.error || 'Nie udało się przeanalizować ankiety'));
-              submitBtn.innerHTML = originalText;
-              submitBtn.disabled = false;
-            }
-          } catch (error) {
-            console.error('Błąd sieci:', error);
-            alert('Wystąpił błąd podczas analizy. Sprawdź połączenie internetowe i spróbuj ponownie.');
-            const submitBtn = this.querySelector('button[type="submit"]');
+        try {
+          const submitBtn = document.getElementById('submitBtn');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Analizuję...';
+          submitBtn.disabled = true;
+
+          const headers = {
+            'Content-Type': 'application/json',
+          };
+          
+          const csrfToken = getCsrfToken();
+          if (csrfToken) {
+            headers[getCsrfHeader()] = csrfToken;
+          }
+
+          const response = await fetch('/api/survey/analyze', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(surveyData)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            document.getElementById('learningStyleForm').classList.add('d-none');
+            document.querySelector('.progress-bar-container').classList.add('d-none');
+            document.getElementById('aiResult').classList.remove('d-none');
+            document.getElementById('aiOutput').innerHTML = 
+              `<strong class="text-accent">${result.message}</strong>`;
+          } else {
+            alert('Błąd: ' + (result.error || 'Nie udało się przeanalizować ankiety'));
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
           }
-        });
+        } catch (error) {
+          console.error('Błąd sieci:', error);
+          alert('Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+          const submitBtn = document.getElementById('submitBtn');
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        }
+      });
 
-      // Manual selection removed - users must complete survey when AI is unavailable
+      // Inicjalizacja
+      updateProgress();
+      updateButtons();
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
+

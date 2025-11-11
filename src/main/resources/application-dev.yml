@@ -22,3 +22,14 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
     pl.learnedge: DEBUG
+
+# AI Configuration - token podzielony na dwie części
+HF_TOKEN: hf_sNspmRjEZBOaQCpxsy
+HF_TOKEN2: IzFIYrhhUQnSqVIz
+HF_MODEL: facebook/bart-large-mnli
+
+app:
+  ai:
+    huggingface:
+      model: facebook/bart-large-mnli
+      api-url: https://api-inference.huggingface.co/models
