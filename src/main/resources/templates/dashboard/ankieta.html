@@ -153,10 +153,99 @@
       textarea.form-control::placeholder {
         color: rgba(255,255,255,0.4);
       }
+      
+      /* Toast notification system */
+      .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 400px;
+      }
+      .toast-notification {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: linear-gradient(135deg, rgba(30, 30, 30, 0.98), rgba(20, 20, 20, 0.98));
+        border: 2px solid var(--accent-color);
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(var(--accent-rgb), 0.3);
+        backdrop-filter: blur(10px);
+        animation: slideInRight 0.4s ease-out;
+        color: #fff;
+      }
+      .toast-notification.toast-hide {
+        animation: slideOutRight 0.4s ease-out forwards;
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+      }
+      .toast-logo {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .toast-logo img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+      }
+      .toast-message {
+        flex: 1;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+      .toast-close {
+        flex-shrink: 0;
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease;
+      }
+      .toast-close:hover {
+        color: #fff;
+      }
     </style>
   </head>
 
   <body>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+    
     <div th:replace="~{fragments/nav :: navbar}"></div>
 
     <div class="container py-5">
@@ -547,7 +636,7 @@
 
           <!-- Opis tekstowy (opcjonalny - na końcu) -->
           <div class="question-container" data-question="21">
-            <div class="question-number">Dodatkowy opis (opcjonalnie)</div>
+            <div class="question-number">Dodatkowy opis</div>
             <h5 class="fw-bold mb-4">Opisz swoimi słowami, jak najchętniej się uczysz:</h5>
             <textarea 
               class="form-control" 
@@ -591,6 +680,32 @@
     <script>
       let currentQuestionIndex = 1;
       const totalQuestions = 21; // 20 pytań + opis tekstowy
+      
+      // Toast notification system
+      function showToast(message, duration = 5000) {
+        const container = document.getElementById('toastContainer');
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        
+        toast.innerHTML = `
+          <div class="toast-logo">
+            <img src="/img/logo-icon.png" alt="LearnEdge">
+          </div>
+          <div class="toast-message">${message}</div>
+          <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="bi bi-x"></i>
+          </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Auto-hide after duration
+        setTimeout(() => {
+          toast.classList.add('toast-hide');
+          setTimeout(() => toast.remove(), 400);
+        }, duration);
+      }
       
       // CSRF token
       function getCsrfToken() {
@@ -710,7 +825,7 @@
         
         // Walidacja
         if (answeredQuestions === 0 && (!surveyData.userDescription || surveyData.userDescription.length < 10)) {
-          alert('Proszę odpowiedzieć na przynajmniej jedno pytanie lub podać opis.');
+          showToast('Proszę odpowiedzieć na przynajmniej jedno pytanie lub podać opis.');
           return;
         }
 
@@ -744,13 +859,13 @@
             document.getElementById('aiOutput').innerHTML = 
               `<strong class="text-accent">${result.message}</strong>`;
           } else {
-            alert('Błąd: ' + (result.error || 'Nie udało się przeanalizować ankiety'));
+            showToast('Błąd: ' + (result.error || 'Nie udało się przeanalizować ankiety'));
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
           }
         } catch (error) {
           console.error('Błąd sieci:', error);
-          alert('Wystąpił błąd podczas analizy. Spróbuj ponownie.');
+          showToast('Wystąpił błąd podczas analizy. Spróbuj ponownie.');
           const submitBtn = document.getElementById('submitBtn');
           submitBtn.innerHTML = originalText;
           submitBtn.disabled = false;
