@@ -72,7 +72,7 @@ public class PasswordController {
         }
     }
 
-    @PostMapping("/api/profile//change-password")
+    @PostMapping("/api/profile/change-password")
     public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordRequest request) {
         try {
             passwordService.changePassword(request.getCurrentPassword(), request.getNewPassword());
