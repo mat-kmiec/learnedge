@@ -1,76 +1,170 @@
 <!DOCTYPE html>
-<html lang="pl">
-  <head>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LearnEdge - Lekcja</title>
     <link
-      rel="icon"
-      type="image/x-icon"
-      th:href="@{/img/favicon.ico}"
-      href="../../static/img/favicon.ico"
-    />
-
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <!-- Bootstrap Icons -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-
-    <!-- Custom -->
-    <link
-      th:href="@{/css/pages/dashboard.css}"
-      href="../../static/css/pages/dashboard.css"
-      rel="stylesheet"
+            rel="icon"
+            type="image/x-icon"
+            th:href="@{/img/favicon.ico}"
+            href="../../static/img/favicon.ico"
     />
 
     <link
-      th:href="@{/css/pages/course.css}"
-      href="../../static/css/pages/course.css"
-      rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
     />
-  </head>
-  <body>
-  <nav th:replace="~{fragments/nav :: navbar}"></nav>
 
-    <div class="container py-5">
-      <div class="dashboard-container">
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+            rel="stylesheet"
+    />
+
+    <link
+            th:href="@{/css/pages/dashboard.css}"
+            href="../../static/css/pages/dashboard.css"
+            rel="stylesheet"
+    />
+
+    <link
+            th:href="@{/css/pages/course.css}"
+            href="../../static/css/pages/course.css"
+            rel="stylesheet"
+    />
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: navbar}"></nav>
+
+<div class="container py-5">
+    <div class="dashboard-container">
         <div
-          class="dashboard-header d-flex justify-content-between align-items-center flex-wrap"
+                class="dashboard-header d-flex justify-content-between align-items-center flex-wrap"
         >
-          <div>
-            <h1 class="mb-1" th:text="${lesson.title}">Typy zmiennych w JAVA</h1>
-          </div>
+            <div>
+                <h1 class="mb-1" th:text="${lesson.title}">Typy zmiennych w JAVA</h1>
+            </div>
         </div>
-        <!-- Lesson context -->
         <div th:utext="${lesson.content}"></div>
 
-          <div class="course-navigation my-5 text-center">
-
-              <button id="completeLessonBtn" class="btn btn-gradient me-3" th:data-lesson-id="${lesson.id}">>
-                  <i class="bi bi-arrow-left me-2"></i> Ukończ lekcję
-              </button>
-          </div>
-      </div>
+        <div class="course-navigation my-5 text-center">
+            <button
+                    id="completeLessonBtn"
+                    class="btn btn-gradient me-3"
+                    th:data-lesson-id="${lesson.id}"
+            >
+                <i class="bi bi-arrow-left me-2"></i> Ukończ lekcję
+            </button>
+        </div>
     </div>
-  <input type="hidden" id="userLearningStyle" th:value="${userLearningStyle}">
+</div>
+<div class="modal fade" id="quizResultModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h5 class="modal-title">Wynik Quizu</h5>
+                <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                ></button>
+            </div>
+
+            <div class="modal-body" id="quizResultContent">
+            </div>
+
+            <div class="modal-footer" id="quizResultFooter">
+            <span
+                    id="ankietaUrl"
+                    th:data-url="@{/ankieta}"
+                    style="display: none"
+            ></span>
+            </div>
+        </div>
+    </div>
+</div>
+<input
+        type="hidden"
+        id="userLearningStyle"
+        th:value="${userLearningStyle}"
+/>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/lesson.js}"></script>
+<script th:src="@{/js/interaction.js}"></script>
+<script th:src="@{/js/learning-visibility.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const quizzes = document.querySelectorAll(".course-quiz-block");
+        let solvedCount = 0;
+        let correctCount = 0;
+        const mainCompleteBtn = document.getElementById("completeLessonBtn");
+        if (quizzes.length > 0) {
+            if (mainCompleteBtn) {
+                mainCompleteBtn.style.display = "none";
+            }
+        }
+
+        quizzes.forEach((quiz) => {
+            const options = quiz.querySelectorAll(".course-quiz-option");
+            const feedback = quiz.querySelector(".course-quiz-feedback");
+
+            options.forEach((option) => {
+                option.addEventListener("click", () => {
+                    if (quiz.dataset.learning === "1") return;
+                    const isCorrect = option.dataset.correct === "true";
+                    if (isCorrect) {
+                        correctCount++;
+                        feedback.innerHTML = "<span style='color: green;'>Dobrze!</span>";
+                    } else {
+                        feedback.innerHTML = "<span style='color: red;'>Źle.</span>";
+                    }
+                    quiz.dataset.learning = "1";
+                    solvedCount++;
+                    if (solvedCount === quizzes.length) {
+                        showQuizPopup();
+                    }
+                });
+            });
+        });
+
+        function showQuizPopup() {
+            const percent = (correctCount / quizzes.length) * 100;
+            const modal = new bootstrap.Modal(
+                document.getElementById("quizResultModal")
+            );
+
+            const content = document.getElementById("quizResultContent");
+            const footer = document.getElementById("quizResultFooter");
+            const ankietaUrl = document.getElementById("ankietaUrl").dataset.url;
+
+            footer.innerHTML = "";
+
+            if (percent < 50) {
+                content.innerHTML = `
+                <p>Twój wynik to <strong>${percent.toFixed(0)}%</strong>.</p>
+                <p>Sugerujemy zmianę stylu uczenia się:
+                    <a href="${ankietaUrl}" class="text-primary fw-bold">Kliknij tutaj</a>
+                </p>
+            `;
+            } else {
+                content.innerHTML = `
+                <p>Gratulacje! Twój wynik to <strong>${percent.toFixed(0)}%</strong> 🎉</p>
+            `;
 
 
-  <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!--    <script th:src="@{/js/course.js}"></script>-->
-    <script th:src="@{/js/lesson.js}"></script>
-    <script th:src="@{/js/interaction.js}"></script>
+                const originalButton = document.getElementById("completeLessonBtn");
+                if (originalButton) {
+                    footer.appendChild(originalButton);
+                    originalButton.style.display = "inline-block";
+                }
+            }
 
-
-
-  <script th:src="@{/js/learning-visibility.js}"></script>
-  </body>
+            modal.show();
+        }
+    });
+</script>
+</body>
 </html>

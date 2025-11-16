@@ -128,18 +128,7 @@ public class LessonService {
             }
         }
     }
-
-//    private String generateSlug(String title) {
-//        if (title == null) return "";
-//        return title.toLowerCase()
-//                .replaceAll("ą", "a").replaceAll("ć", "c").replaceAll("ę", "e")
-//                .replaceAll("ł", "l").replaceAll("ń", "n").replaceAll("ó", "o")
-//                .replaceAll("ś", "s").replaceAll("ź", "z").replaceAll("ż", "z")
-//                .replaceAll("[^a-z0-9\\s-]", "")
-//                .replaceAll("\\s+", "-")
-//                .replaceAll("-{2,}", "-");
-//    }
-
+    
     private int getLastLessonOrder(Long courseId){
         return lessonRepository.findTopByCourseIdOrderByLessonOrderDesc(courseId)
                 .map(Lesson::getLessonOrder)

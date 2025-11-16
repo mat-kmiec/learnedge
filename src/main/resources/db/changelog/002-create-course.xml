@@ -32,11 +32,5 @@
             <column name="difficulty" value="początkujący"/>
             <column name="slug" value="podstawy-java" />
         </insert>
-        <insert tableName="courses">
-            <column name="name" value="Podstawy programowania w python"/>
-            <column name="description" value="Wprowadzenie do języka Python"/>
-            <column name="difficulty" value="początkujący"/>
-            <column name="slug" value="podstawy-python" />
-        </insert>
     </changeSet>
 </databaseChangeLog>

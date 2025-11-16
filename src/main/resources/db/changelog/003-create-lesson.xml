@@ -198,12 +198,8 @@ java Main
             <column name="slug" value="Wprowadzenie-do-java" />
         </insert>
 
-        <insert tableName="lessons">
-            <column name="title" value="Zmienne i typy danych"/>
-            <column name="content" value="Dowiedz się, jak deklarować zmienne, jakie są typy danych i jak ich używać."/>
-            <column name="lesson_order" valueNumeric="2"/>
-            <column name="course_id" valueNumeric="1"/>
-            <column name="slug" value="Zmienne-i-typy-danych" />
-        </insert>
+
+
+
     </changeSet>
 </databaseChangeLog>

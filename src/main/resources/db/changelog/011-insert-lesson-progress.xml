@@ -4,11 +4,4 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="insert-lesson-progress" author="learnedge">
-        <insert tableName="lesson_progress">
-            <column name="lesson_id" valueNumeric="1"/>
-            <column name="user_id" valueNumeric="1"/>
-            <column name="completed" valueBoolean="true"/>
-        </insert>
-    </changeSet>
 </databaseChangeLog>

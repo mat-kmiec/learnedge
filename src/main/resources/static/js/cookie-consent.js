@@ -1,11 +1,10 @@
-// Cookie Consent Manager
+
 class CookieConsentManager {
     constructor() {
         this.init();
     }
 
     async init() {
-        // Sprawdź czy użytkownik już wyraził zgodę
         const status = await this.getConsentStatus();
         if (status.showBanner) {
             this.createBanner();
@@ -53,8 +52,7 @@ class CookieConsentManager {
         `;
 
         document.body.appendChild(banner);
-        
-        // Pokaż banner z animacją
+
         setTimeout(() => {
             banner.classList.add('show');
         }, 100);
@@ -127,8 +125,7 @@ class CookieConsentManager {
         `;
 
         document.body.appendChild(modal);
-        
-        // Pokaż modal z animacją
+
         setTimeout(() => {
             modal.classList.add('show');
         }, 10);
@@ -216,7 +213,6 @@ class CookieConsentManager {
     }
 
     showNotification(message, type = 'info') {
-        // Sprawdź czy istnieje kontener na powiadomienia Bootstrap
         const alertClass = type === 'success' ? 'alert-success' : 
                           type === 'error' ? 'alert-danger' : 'alert-info';
         
@@ -230,7 +226,6 @@ class CookieConsentManager {
 
         document.body.appendChild(notification);
 
-        // Auto hide po 5 sekundach
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -238,7 +233,6 @@ class CookieConsentManager {
             }, 150);
         }, 5000);
 
-        // Zamknij po kliknięciu
         notification.querySelector('.btn-close').addEventListener('click', () => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -248,7 +242,6 @@ class CookieConsentManager {
     }
 }
 
-// Inicjalizacja po załadowaniu strony
 let cookieConsent;
 document.addEventListener('DOMContentLoaded', () => {
     cookieConsent = new CookieConsentManager();

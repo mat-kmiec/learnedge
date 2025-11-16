@@ -22,12 +22,4 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="003-create-user-courses" author="learnedge" context="dev">
-        <insert tableName="user_course">
-            <column name="user_id" value="1" />
-            <column name="course_id" value="1" />
-            <column name="progress" value="50" />
-        </insert>
-
-    </changeSet>
 </databaseChangeLog>

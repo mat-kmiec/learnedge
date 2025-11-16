@@ -4,12 +4,4 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
-    <changeSet id="007-update-test-user" author="learnedge" context="dev">
-        <update tableName="users">
-            <column name="first_name" value="Jan"/>
-            <column name="last_name" value="Testowy"/>
-            <where>username = 'user'</where>
-        </update>
-    </changeSet>
-
 </databaseChangeLog>
