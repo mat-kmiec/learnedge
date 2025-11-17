@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.learnedge.dto.LessonDto;
 import pl.learnedge.exception.LessonNotFoundException;
 import pl.learnedge.model.Lesson;
@@ -32,7 +33,12 @@ public class LessonController {
     private final UserService userService;
 
     @GetMapping("/kurs/{course_slug}/{lesson_slug}")
-    public String lesson(@PathVariable String course_slug, @PathVariable String lesson_slug, Model model) {
+    public String lesson(@PathVariable String course_slug, @PathVariable String lesson_slug, Model model, RedirectAttributes redirectAttributes) {
+        Long userId = authService.getCurrentUserId();
+        if(userService.getLearningStyleByUserId(userId) == 0){
+            redirectAttributes.addFlashAttribute("errorMessage", "Musisz posiadać styl uczenia się aby przejść do lekcji!");
+            return "redirect:/ankieta";
+        }
         LessonDto lesson = lessonService.getLessonBySlug(lesson_slug);
         int userLearningStyle = userService.getLearningStyleByUserId(authService.getCurrentUserId());
         model.addAttribute("userLearningStyle", userLearningStyle);
