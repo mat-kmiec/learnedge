@@ -1,0 +1,7 @@
+dwad
+
+@Value("${app.ai.huggingface.model:facebook/bart-large-mnli}")
+    private String model;
+
+    @Value("${app.ai.huggingface.api-url:https://api-inference.huggingface.co/models/}")
+    private String apiUrl;

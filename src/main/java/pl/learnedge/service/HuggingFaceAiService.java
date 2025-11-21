@@ -19,13 +19,13 @@ import java.util.Map;
 @Slf4j
 public class HuggingFaceAiService {
 
-    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(45);
     
-    // Czyste etykiety (bez nawiasów) działają lepiej przy negacjach
     private static final List<String> CANDIDATE_LABELS = List.of(
         "Visual learner", 
         "Auditory learner", 
-        "Kinesthetic learner"
+        "Kinesthetic learner",
+        "Negative sentiment, hate or denial"
     );
 
     @Value("${HF_TOKEN:}")
@@ -35,18 +35,16 @@ public class HuggingFaceAiService {
     private String tokenPart2;
 
     @Value("${app.ai.huggingface.model:facebook/bart-large-mnli}")
-    private String model;
+    private String classificationModel;
 
-    @Value("${app.ai.huggingface.api-url:https://api-inference.huggingface.co/models/}")
-    private String apiUrl;
+    private final String translationModel = "Helsinki-NLP/opus-mt-pl-en";
 
     private final WebClient.Builder webClientBuilder;
     private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void init() {
-        log.info("=== Hugging Face AI Service (Context Injection) ===");
-        log.info("Model: {}", model);
+        log.info("=== Hugging Face AI Service: TRANSLATOR + BART (URL FIX) ===");
     }
 
     private String getFullToken() {
@@ -56,81 +54,70 @@ public class HuggingFaceAiService {
     public String analyzeLearningStyle(Map<String, String> surveyAnswers) {
         String userDescription = surveyAnswers.get("userDescription");
 
-        if (userDescription == null || userDescription.trim().length() < 3) {
-            log.warn("Tekst do analizy AI jest pusty.");
+        if (userDescription == null || userDescription.trim().length() < 4) {
             return "MIXED";
         }
-
-        // --- CONTEXT INJECTION ---
-        // Model jest po angielsku. Polskie metafory ("mam przed oczami") są dla niego niezrozumiałe.
-        // Skanujemy tekst w poszukiwaniu słów kluczowych i dodajemy angielskie wskazówki.
-        String textToAnalyze = injectContext(userDescription);
 
         try {
-            return callHuggingFaceApi(textToAnalyze);
+            String englishText = translateToEnglish(userDescription);
+            if (englishText == null) return "MIXED";
+            return classifyEnglishText(englishText);
         } catch (Exception e) {
-            log.error("AI Analysis failed: {}", e.getMessage());
+            log.error("AI Chain failed: {}", e.getMessage());
             return "MIXED";
         }
     }
 
-    private String injectContext(String text) {
-        StringBuilder context = new StringBuilder();
-        String lower = text.toLowerCase();
+    private String translateToEnglish(String polishText) {
+        // FIX: Próbujemy użyć standardowego API Inference dla tłumacza, 
+        // bo Router często zwraca 404 dla starszych modeli jak Helsinki-NLP
+        String url = "https://api-inference.huggingface.co/models/" + translationModel;
+        String token = getFullToken();
 
-        // 1. Wzrokowiec
-        // Unikamy słów, które łatwo zanegować ("czytać", "patrzeć"), skupiamy się na rzeczownikach i silnych deklaracjach
-        if (lower.contains("wzrok") || lower.contains("obraz") || lower.contains("schemat") || 
-            lower.contains("wykres") || lower.contains("kolor") || lower.contains("ilustracja") || 
-            lower.contains("diagram") || lower.contains("widz")) {
-            context.append(" visual learning style. images. diagrams. seeing. ");
-        }
+        WebClient webClient = webClientBuilder
+                .baseUrl(url)
+                .defaultHeader("Authorization", "Bearer " + token)
+                .build();
 
-        // 2. Słuchowiec
-        if (lower.contains("słuch") || lower.contains("sluch") || lower.contains("dźwięk") || 
-            lower.contains("dzwiek") || lower.contains("głos") || lower.contains("podcast") || 
-            lower.contains("nagran") || lower.contains("muzyk") || lower.contains("rozmaw") || 
-            lower.contains("dyskut")) {
-            context.append(" auditory learning style. listening. sound. discussion. ");
-        }
+        Map<String, String> requestBody = Map.of("inputs", polishText);
 
-        // 3. Kinestetyk
-        if (lower.contains("kinest") || lower.contains("ruch") || lower.contains("dotyk") || 
-            lower.contains("ciał") || lower.contains("praktyk") || lower.contains("robic") || 
-            lower.contains("budow") || lower.contains("sport")) {
-            context.append(" kinesthetic learning style. movement. touching. doing. ");
-        }
+        try {
+            String rawResponse = webClient.post()
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block(REQUEST_TIMEOUT);
 
-        // Doklejamy kontekst na końcu, aby model wziął go pod uwagę
-        if (context.length() > 0) {
-            return text + " [Context clues:" + context.toString() + "]";
+            JsonNode root = objectMapper.readTree(rawResponse);
+            if (root.isArray() && root.size() > 0 && root.get(0).has("translation_text")) {
+                String translated = root.get(0).get("translation_text").asText();
+                log.info("Tłumaczenie: '{}' -> '{}'", polishText, translated);
+                return translated;
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Tłumaczenie nieudane (błąd API): {}", e.getMessage());
+            return null;
         }
-        
-        return text;
     }
 
-    private String callHuggingFaceApi(String textInput) {
-        String fullUrl = apiUrl.endsWith("/") ? apiUrl + model : apiUrl + "/" + model;
-        if (!fullUrl.contains("api-inference.huggingface.co")) {
-             fullUrl = "https://api-inference.huggingface.co/models/" + model;
-        }
-
+    private String classifyEnglishText(String englishText) {
+        // Router zazwyczaj działa dobrze dla BART-a
+        String url = "https://router.huggingface.co/models/" + classificationModel;
         String token = getFullToken();
-        
+
         WebClient webClient = webClientBuilder
-                .baseUrl(fullUrl)
+                .baseUrl(url)
                 .defaultHeader("Authorization", "Bearer " + token)
                 .build();
 
         Map<String, Object> requestBody = Map.of(
-            "inputs", textInput,
+            "inputs", englishText,
             "parameters", Map.of(
                 "candidate_labels", CANDIDATE_LABELS,
                 "multi_label", false
             )
         );
-
-        log.info("Wysyłam do AI: '{}'", textInput);
 
         try {
             String rawResponse = webClient.post()
@@ -140,12 +127,8 @@ public class HuggingFaceAiService {
                     .block(REQUEST_TIMEOUT);
 
             return parseResponse(rawResponse);
-
-        } catch (WebClientResponseException e) {
-            log.error("Błąd API HF: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return "MIXED";
         } catch (Exception e) {
-            log.error("Błąd połączenia z AI", e);
+            log.error("Błąd klasyfikacji: {}", e.getMessage());
             return "MIXED";
         }
     }
@@ -163,8 +146,14 @@ public class HuggingFaceAiService {
                     String winner = labels.get(0).asText();
                     double confidence = scores.get(0).asDouble();
                     
-                    log.info("AI zdecydowało: {} (pewność: {})", winner, confidence);
+                    log.info("BART Decyzja: '{}' ({:.2f})", winner, confidence);
                     
+                    if (winner.contains("Negative") || winner.contains("hate") || winner.contains("denial")) {
+                        return "NEGATIVE";
+                    }
+
+                    if (confidence < 0.30) return "MIXED";
+
                     if (winner.contains("Visual")) return "VISUAL";
                     if (winner.contains("Auditory")) return "AUDITORY";
                     if (winner.contains("Kinesthetic")) return "KINESTHETIC";

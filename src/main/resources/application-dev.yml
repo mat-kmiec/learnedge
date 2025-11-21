@@ -32,4 +32,4 @@ app:
   ai:
     huggingface:
       model: facebook/bart-large-mnli
-      api-url: https://api-inference.huggingface.co/models
+      api-url: https://router.huggingface.co/models
