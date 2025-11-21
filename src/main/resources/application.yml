@@ -55,5 +55,5 @@ app:
   ai:
     huggingface:
       token: ${HF_TOKEN}
-      model: ${HF_MODEL:facebook/bart-large-mnli}
-      api-url: https://api-inference.huggingface.co/models
+      model: ${HF_MODEL:joeddav/xlm-roberta-large-xnli}
+      api-url: https://router.huggingface.co/models
