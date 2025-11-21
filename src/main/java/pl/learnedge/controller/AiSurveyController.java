@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pl.learnedge.service.LearningStyleService;
+// Importujemy wewnętrzną klasę z wynikiem
+import pl.learnedge.service.LearningStyleService.AnalysisResult;
 
 import java.util.Map;
 
@@ -19,7 +21,6 @@ public class AiSurveyController {
 
     @GetMapping("/ankieta")
     public String showSurvey(Model model) {
-        // Sprawdź czy AI jest dostępne
         boolean aiAvailable = learningStyleService.isAiAnalysisAvailable();
         model.addAttribute("aiAvailable", aiAvailable);
 
@@ -35,38 +36,43 @@ public class AiSurveyController {
     public ResponseEntity<?> analyzeSurvey(@RequestBody Map<String, String> surveyAnswers) {
         try {
             log.info("Otrzymano ankietę z {} odpowiedziami", surveyAnswers.size());
-            
-            // Walidacja danych wejściowych
+
+            // Walidacja
             if (surveyAnswers == null || surveyAnswers.isEmpty()) {
                 return ResponseEntity.badRequest()
                     .body(Map.of("error", "Brak odpowiedzi w ankiecie"));
             }
-            
-            // Analizuj odpowiedzi (automatycznie wybierze AI lub algorytm alternatywny)
-            String learningStyle = learningStyleService.analyzeAndSaveLearningStyle(surveyAnswers);
 
+            // 1. Wywołujemy nową metodę serwisu, która zwraca obiekt AnalysisResult
+            AnalysisResult result = learningStyleService.analyzeAndSaveLearningStyle(surveyAnswers);
+            
+            // 2. Wyciągamy dane z obiektu wyniku
+            String learningStyle = result.getDominantStyle();
+            Map<String, Double> stylePercents = result.getPercentages();
+            
             boolean aiUsed = learningStyleService.isAiAnalysisAvailable();
             String analysisMethod = aiUsed ? "AI" : "algorytmem alternatywnym";
-
+            
             log.info("Pomyślnie przeanalizowano styl uczenia: {} (metoda: {})", learningStyle, analysisMethod);
 
+            // 3. Zwracamy odpowiedź używając danych z result
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "learningStyle", learningStyle,
-                "message", "Twój styl uczenia został przeanalizowany " + analysisMethod + ": " + translateStyle(learningStyle)
+                "message", "Twój styl uczenia został przeanalizowany " + analysisMethod + ": " + translateStyle(learningStyle),
+                "percents", stylePercents
             ));
 
         } catch (Exception e) {
             log.error("Błąd podczas analizy ankiety: ", e);
             return ResponseEntity.badRequest()
-                .body(Map.of("error", "Wystąpił błąd podczas analizy"));
+                .body(Map.of("error", "Wystąpił błąd podczas analizy: " + e.getMessage()));
         }
     }
 
-    // Manual selection endpoint removed - users must complete survey when AI is unavailable
-
     private String translateStyle(String style) {
-        return switch (style) {
+        if (style == null) return "Nieokreślony";
+        return switch (style.toUpperCase()) {
             case "VISUAL" -> "Wzrokowy";
             case "AUDITORY" -> "Słuchowy";
             case "KINESTHETIC" -> "Kinestetyczny";

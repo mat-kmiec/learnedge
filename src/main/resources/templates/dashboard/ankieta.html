@@ -857,8 +857,16 @@
             document.getElementById('learningStyleForm').classList.add('d-none');
             document.querySelector('.progress-bar-container').classList.add('d-none');
             document.getElementById('aiResult').classList.remove('d-none');
+            let percentsHtml = '';
+            if (result.percents) {
+              percentsHtml = '<div class="mt-3">';
+              percentsHtml += `<span class="me-3">Wzrokowy: <strong>${(result.percents.VISUAL ?? 0).toFixed(1)}%</strong></span>`;
+              percentsHtml += `<span class="me-3">Słuchowy: <strong>${(result.percents.AUDITORY ?? 0).toFixed(1)}%</strong></span>`;
+              percentsHtml += `<span class="me-3">Kinestetyczny: <strong>${(result.percents.KINESTHETIC ?? 0).toFixed(1)}%</strong></span>`;
+              percentsHtml += '</div>';
+            }
             document.getElementById('aiOutput').innerHTML = 
-              `<strong class="text-accent">${result.message}</strong>`;
+              `<strong class="text-accent">${result.message}</strong>` + percentsHtml;
           } else {
             showToast('Błąd: ' + (result.error || 'Nie udało się przeanalizować ankiety'));
             submitBtn.innerHTML = originalText;
