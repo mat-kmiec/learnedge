@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
@@ -21,7 +20,13 @@ import java.util.Map;
 public class HuggingFaceAiService {
 
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
-    private static final List<String> LEARNING_STYLE_LABELS = List.of("VISUAL", "AUDITORY", "KINESTHETIC");
+    
+    // Czyste etykiety (bez nawiasów) działają lepiej przy negacjach
+    private static final List<String> CANDIDATE_LABELS = List.of(
+        "Visual learner", 
+        "Auditory learner", 
+        "Kinesthetic learner"
+    );
 
     @Value("${HF_TOKEN:}")
     private String tokenPart1;
@@ -29,10 +34,10 @@ public class HuggingFaceAiService {
     @Value("${HF_TOKEN2:}")
     private String tokenPart2;
 
-    @Value("${app.ai.huggingface.model}")
+    @Value("${app.ai.huggingface.model:facebook/bart-large-mnli}")
     private String model;
 
-    @Value("${app.ai.huggingface.api-url}")
+    @Value("${app.ai.huggingface.api-url:https://api-inference.huggingface.co/models/}")
     private String apiUrl;
 
     private final WebClient.Builder webClientBuilder;
@@ -40,246 +45,76 @@ public class HuggingFaceAiService {
 
     @PostConstruct
     public void init() {
-        String token = getFullToken();
-        log.info("=== Konfiguracja Hugging Face AI Service ===");
-        log.info("Token: {}", token != null && !token.isEmpty() ? token.substring(0, Math.min(10, token.length())) + "..." : "BRAK");
+        log.info("=== Hugging Face AI Service (Context Injection) ===");
         log.info("Model: {}", model);
-        log.info("API URL: {}", apiUrl);
-        log.info("AI Service zainicjalizowany - sprawdzanie dostępności zostanie wykonane przy pierwszym użyciu");
     }
 
-    /**
-     * Łączy dwie części tokena
-     */
     private String getFullToken() {
-        if ((tokenPart1 == null || tokenPart1.isEmpty()) && (tokenPart2 == null || tokenPart2.isEmpty())) {
-            return "";
-        }
         return (tokenPart1 != null ? tokenPart1 : "") + (tokenPart2 != null ? tokenPart2 : "");
     }
 
-    /**
-     * Analizuje odpowiedzi ankiety i określa styl uczenia się
-     */
     public String analyzeLearningStyle(Map<String, String> surveyAnswers) {
+        String userDescription = surveyAnswers.get("userDescription");
+
+        if (userDescription == null || userDescription.trim().length() < 3) {
+            log.warn("Tekst do analizy AI jest pusty.");
+            return "MIXED";
+        }
+
+        // --- CONTEXT INJECTION ---
+        // Model jest po angielsku. Polskie metafory ("mam przed oczami") są dla niego niezrozumiałe.
+        // Skanujemy tekst w poszukiwaniu słów kluczowych i dodajemy angielskie wskazówki.
+        String textToAnalyze = injectContext(userDescription);
+
         try {
-            // Najpierw spróbuj analizy słów kluczowych z ankiety (pytania wielokrotnego wyboru)
-            String keywordResult = analyzeByKeywords(surveyAnswers);
-            
-            // Jeśli są odpowiedzi z ankiety i dały wynik - użyj go
-            if (!"MIXED".equals(keywordResult)) {
-                log.info("Analiza słów kluczowych z ankiety wskazała: {}", keywordResult);
-                return keywordResult;
-            }
-
-            // Jeśli nie ma odpowiedzi z ankiety LUB wynik jest MIXED, spróbuj analizę opisu tekstowego
-            String userDescription = surveyAnswers.get("userDescription");
-            if (userDescription != null && !userDescription.trim().isEmpty()) {
-                log.info("Brak jednoznacznych odpowiedzi z ankiety, analizuję opis tekstowy");
-                
-                // Najpierw spróbuj analizę słów kluczowych w opisie (bardziej niezawodne niż API)
-                String textAnalysisResult = analyzeTextByKeywords(userDescription);
-                if (!"MIXED".equals(textAnalysisResult)) {
-                    log.info("Analiza słów kluczowych w opisie wskazała: {}", textAnalysisResult);
-                    return textAnalysisResult;
-                }
-                
-                // Jeśli analiza słów kluczowych nie dała wyniku, spróbuj API jako ostateczność
-                try {
-                    String prompt = buildAnalysisPrompt(surveyAnswers);
-                    String aiResult = callHuggingFaceApi(prompt);
-                    log.info("Analiza AI wskazała: {}", aiResult);
-                    return extractLearningStyle(aiResult);
-                } catch (Exception e) {
-                    log.warn("API AI niedostępne, używam wyniku analizy tekstowej: {}", textAnalysisResult);
-                    return textAnalysisResult; // Zwróć MIXED jeśli API nie działa
-                }
-            }
-
-            // Jeśli nic nie zadziałało, zwróć MIXED
-            log.info("Brak wystarczających danych do analizy, zwracam MIXED");
-            return "MIXED";
+            return callHuggingFaceApi(textToAnalyze);
         } catch (Exception e) {
-            log.error("Błąd podczas analizy stylu uczenia: ", e);
-            return "MIXED"; // Fallback
-        }
-    }
-
-    private String analyzeByKeywords(Map<String, String> answers) {
-        int visualScore = 0;
-        int auditoryScore = 0;
-        int kinestheticScore = 0;
-
-        // Zlicz odpowiedzi - wartości z ankiety to "visual", "auditory", "kinesthetic"
-        for (Map.Entry<String, String> entry : answers.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            
-            // Pomiń pole userDescription (opis tekstowy)
-            if ("userDescription".equals(key)) {
-                continue;
-            }
-            
-            String normalizedAnswer = value.toLowerCase().trim();
-            if (normalizedAnswer.equals("visual")) {
-                visualScore++;
-            } else if (normalizedAnswer.equals("auditory")) {
-                auditoryScore++;
-            } else if (normalizedAnswer.equals("kinesthetic")) {
-                kinestheticScore++;
-            }
-        }
-
-        log.info("Wyniki analizy ankiety - Visual: {}, Auditory: {}, Kinesthetic: {}",
-                visualScore, auditoryScore, kinestheticScore);
-
-        // Określenie wyniku na podstawie najwyższego wyniku
-        if (visualScore > auditoryScore && visualScore > kinestheticScore) {
-            return "VISUAL";
-        } else if (auditoryScore > visualScore && auditoryScore > kinestheticScore) {
-            return "AUDITORY";
-        } else if (kinestheticScore > visualScore && kinestheticScore > auditoryScore) {
-            return "KINESTHETIC";
-        }
-
-        // Jeśli wyniki są równe, zwróć styl dominujący lub MIXED
-        int maxScore = Math.max(visualScore, Math.max(auditoryScore, kinestheticScore));
-        if (maxScore == 0) {
-            return "MIXED"; // Brak odpowiedzi na pytania wielokrotnego wyboru
-        }
-        
-        // W przypadku remisu, wybierz pierwszy dominujący styl
-        if (visualScore == maxScore) {
-            return "VISUAL";
-        } else if (auditoryScore == maxScore) {
-            return "AUDITORY";
-        } else {
-            return "KINESTHETIC";
-        }
-    }
-
-    /**
-     * Analizuje opis tekstowy pod kątem słów kluczowych związanych ze stylami uczenia
-     */
-    private String analyzeTextByKeywords(String text) {
-        String lowerText = text.toLowerCase();
-        
-        int visualScore = 0;
-        int auditoryScore = 0;
-        int kinestheticScore = 0;
-        
-        // Słowa kluczowe VISUAL (wzrokowy)
-        String[] visualKeywords = {
-            "zobaczyć", "widzieć", "obraz", "wygląd", "patrz", "obserwuj",
-            "schemat", "diagram", "mapa", "rysunek", "ilustracja", "zdjęcie",
-            "kolory", "jasny", "ciemny", "wzór", "kształt", "film", "video",
-            "czytać", "książk", "tekst", "napisać", "notatk"
-        };
-        
-        // Słowa kluczowe AUDITORY (słuchowy)
-        String[] auditoryKeywords = {
-            "słysz", "słuch", "dźwięk", "głos", "mówić", "rozmawia",
-            "dyskusj", "wyjaśni", "opowiedz", "muzyk", "podcast", "audio",
-            "rytm", "melodia", "cisza", "hałas", "ton", "brzmi",
-            "na głos", "powtarzać", "słowami"
-        };
-        
-        // Słowa kluczowe KINESTHETIC (kinestetyczny)
-        String[] kinestheticKeywords = {
-            "poczuć", "czuć", "czuj", "dotknąć", "dotyk", "ruch", "porusz",
-            "działa", "działanie", "praktyk", "ćwiczy", "robic", "wykonać",
-            "ręk", "rączk", "chwyc", "trzyma", "doświadcz", "spróbuj",
-            "aktywn", "sport", "wejść", "ruszyć", "krok", "energia",
-            "napięcie", "fizyczn", "smakuje", "temperatur"
-        };
-        
-        // Zlicz wystąpienia słów kluczowych
-        for (String keyword : visualKeywords) {
-            if (lowerText.contains(keyword)) {
-                visualScore++;
-            }
-        }
-        
-        for (String keyword : auditoryKeywords) {
-            if (lowerText.contains(keyword)) {
-                auditoryScore++;
-            }
-        }
-        
-        for (String keyword : kinestheticKeywords) {
-            if (lowerText.contains(keyword)) {
-                kinestheticScore++;
-            }
-        }
-        
-        log.info("Wyniki analizy tekstu - Visual: {}, Auditory: {}, Kinesthetic: {}",
-                visualScore, auditoryScore, kinestheticScore);
-        
-        // Określenie wyniku na podstawie najwyższego wyniku (wymagamy przynajmniej 3 słowa kluczowe)
-        int maxScore = Math.max(visualScore, Math.max(auditoryScore, kinestheticScore));
-        
-        if (maxScore < 3) {
-            log.info("Zbyt mało słów kluczowych w tekście (max: {}), zwracam MIXED", maxScore);
+            log.error("AI Analysis failed: {}", e.getMessage());
             return "MIXED";
         }
-        
-        // Jeśli różnica między najwyższym a drugim jest za mała, zwróć MIXED
-        int secondMax = 0;
-        if (visualScore != maxScore) secondMax = Math.max(secondMax, visualScore);
-        if (auditoryScore != maxScore) secondMax = Math.max(secondMax, auditoryScore);
-        if (kinestheticScore != maxScore) secondMax = Math.max(secondMax, kinestheticScore);
-        
-        if (maxScore - secondMax < 2) {
-            log.info("Zbyt mała różnica między stylami ({} vs {}), zwracam MIXED", maxScore, secondMax);
-            return "MIXED";
-        }
-        
-        // Określ dominujący styl
-        if (visualScore == maxScore) {
-            return "VISUAL";
-        } else if (auditoryScore == maxScore) {
-            return "AUDITORY";
-        } else if (kinestheticScore == maxScore) {
-            return "KINESTHETIC";
-        }
-        
-        return "MIXED";
     }
 
-    private String buildAnalysisPrompt(Map<String, String> answers) {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("Analyze this person's learning style and determine if they are: VISUAL (prefer images, diagrams, reading), AUDITORY (prefer listening, discussions, explanations), or KINESTHETIC (prefer hands-on, movement, practice) learner.\n\n");
+    private String injectContext(String text) {
+        StringBuilder context = new StringBuilder();
+        String lower = text.toLowerCase();
 
-        // Sprawdź czy są odpowiedzi z ankiety
-        boolean hasQuestionAnswers = answers.entrySet().stream()
-            .anyMatch(e -> e.getKey().startsWith("question"));
-        
-        if (hasQuestionAnswers) {
-            // Jeśli są odpowiedzi z ankiety, uwzględnij je
-            prompt.append("Survey answers:\n");
-            answers.forEach((key, value) -> {
-                if (key.startsWith("question")) {
-                    prompt.append("- ").append(value).append("\n");
-                }
-            });
-            prompt.append("\n");
-        }
-        
-        // Zawsze dodaj opis tekstowy jeśli istnieje
-        String userDescription = answers.get("userDescription");
-        if (userDescription != null && !userDescription.trim().isEmpty()) {
-            prompt.append("Personal description:\n").append(userDescription).append("\n\n");
+        // 1. Wzrokowiec
+        // Unikamy słów, które łatwo zanegować ("czytać", "patrzeć"), skupiamy się na rzeczownikach i silnych deklaracjach
+        if (lower.contains("wzrok") || lower.contains("obraz") || lower.contains("schemat") || 
+            lower.contains("wykres") || lower.contains("kolor") || lower.contains("ilustracja") || 
+            lower.contains("diagram") || lower.contains("widz")) {
+            context.append(" visual learning style. images. diagrams. seeing. ");
         }
 
-        prompt.append("Based on this information, this person is primarily a:");
-        return prompt.toString();
+        // 2. Słuchowiec
+        if (lower.contains("słuch") || lower.contains("sluch") || lower.contains("dźwięk") || 
+            lower.contains("dzwiek") || lower.contains("głos") || lower.contains("podcast") || 
+            lower.contains("nagran") || lower.contains("muzyk") || lower.contains("rozmaw") || 
+            lower.contains("dyskut")) {
+            context.append(" auditory learning style. listening. sound. discussion. ");
+        }
+
+        // 3. Kinestetyk
+        if (lower.contains("kinest") || lower.contains("ruch") || lower.contains("dotyk") || 
+            lower.contains("ciał") || lower.contains("praktyk") || lower.contains("robic") || 
+            lower.contains("budow") || lower.contains("sport")) {
+            context.append(" kinesthetic learning style. movement. touching. doing. ");
+        }
+
+        // Doklejamy kontekst na końcu, aby model wziął go pod uwagę
+        if (context.length() > 0) {
+            return text + " [Context clues:" + context.toString() + "]";
+        }
+        
+        return text;
     }
 
-    private String callHuggingFaceApi(String prompt) {
-        log.info("Wysyłam prompt do Hugging Face API: {}", prompt);
-
-        // Poprawny URL: https://api-inference.huggingface.co/models/facebook/bart-large-mnli
+    private String callHuggingFaceApi(String textInput) {
         String fullUrl = apiUrl.endsWith("/") ? apiUrl + model : apiUrl + "/" + model;
+        if (!fullUrl.contains("api-inference.huggingface.co")) {
+             fullUrl = "https://api-inference.huggingface.co/models/" + model;
+        }
+
         String token = getFullToken();
         
         WebClient webClient = webClientBuilder
@@ -288,15 +123,14 @@ public class HuggingFaceAiService {
                 .build();
 
         Map<String, Object> requestBody = Map.of(
-            "inputs", prompt,
+            "inputs", textInput,
             "parameters", Map.of(
-                "candidate_labels", LEARNING_STYLE_LABELS,
+                "candidate_labels", CANDIDATE_LABELS,
                 "multi_label", false
             )
         );
 
-        log.info("Request URL: {}", fullUrl);
-        log.info("Request body: {}", requestBody);
+        log.info("Wysyłam do AI: '{}'", textInput);
 
         try {
             String rawResponse = webClient.post()
@@ -305,64 +139,45 @@ public class HuggingFaceAiService {
                     .bodyToMono(String.class)
                     .block(REQUEST_TIMEOUT);
 
-            log.info("Odpowiedź z Hugging Face API: {}", rawResponse);
+            return parseResponse(rawResponse);
 
-            if (rawResponse == null || rawResponse.isBlank()) {
-                log.warn("Pusta odpowiedź z Hugging Face API");
-                return "MIXED";
-            }
-
-            JsonNode responseNode = objectMapper.readTree(rawResponse);
-
-            if (responseNode.has("error")) {
-                log.warn("Hugging Face zwróciło błąd: {}", responseNode.get("error").asText());
-                return "MIXED";
-            }
-
-            JsonNode resultNode = responseNode.isArray() && responseNode.size() > 0
-                    ? responseNode.get(0)
-                    : responseNode;
-
-            JsonNode labelsNode = resultNode.get("labels");
-            JsonNode scoresNode = resultNode.get("scores");
-
-            if (labelsNode != null && labelsNode.isArray() && labelsNode.size() > 0) {
-                if (scoresNode != null && scoresNode.isArray()) {
-                    log.info("Labels: {}, Scores: {}", labelsNode, scoresNode);
-                }
-                return labelsNode.get(0).asText();
-            }
-
-            log.warn("Nieprawidłowa odpowiedź z API - brak pola 'labels'");
-            return "MIXED";
         } catch (WebClientResponseException e) {
-            log.error("Błąd HTTP podczas wywołania Hugging Face API (status {}): {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+            log.error("Błąd API HF: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
             return "MIXED";
         } catch (Exception e) {
-            log.error("Błąd wywołania Hugging Face API: ", e);
+            log.error("Błąd połączenia z AI", e);
             return "MIXED";
         }
     }
 
-    private String extractLearningStyle(String apiResult) {
-        // Dla wyników z nowego API (bezpośrednio etykieta)
-        if (apiResult.toUpperCase().contains("VISUAL")) {
-            return "VISUAL";
-        } else if (apiResult.toUpperCase().contains("AUDITORY")) {
-            return "AUDITORY";
-        } else if (apiResult.toUpperCase().contains("KINESTHETIC")) {
-            return "KINESTHETIC";
+    private String parseResponse(String jsonResponse) {
+        try {
+            JsonNode root = objectMapper.readTree(jsonResponse);
+            JsonNode result = root.isArray() ? root.get(0) : root;
+
+            if (result.has("labels") && result.has("scores")) {
+                JsonNode labels = result.get("labels");
+                JsonNode scores = result.get("scores");
+                
+                if (labels.size() > 0) {
+                    String winner = labels.get(0).asText();
+                    double confidence = scores.get(0).asDouble();
+                    
+                    log.info("AI zdecydowało: {} (pewność: {})", winner, confidence);
+                    
+                    if (winner.contains("Visual")) return "VISUAL";
+                    if (winner.contains("Auditory")) return "AUDITORY";
+                    if (winner.contains("Kinesthetic")) return "KINESTHETIC";
+                }
+            }
+            return "MIXED";
+        } catch (Exception e) {
+            log.error("Błąd parsowania JSON z AI", e);
+            return "MIXED";
         }
-        return "MIXED";
     }
 
-    /**
-     * Sprawdza czy usługa AI jest dostępna
-     * UWAGA: Obecnie zawsze zwraca true - ankieta używa algorytmu słów kluczowych jako głównej metody
-     */
     public boolean isAvailable() {
-        // Zwracamy true - algorytm słów kluczowych jest wystarczający
-        // API Hugging Face jest używane tylko jako opcjonalny backup
-        return true;
+        return !getFullToken().isEmpty();
     }
 }
