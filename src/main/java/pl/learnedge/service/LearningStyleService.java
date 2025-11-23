@@ -20,6 +20,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class LearningStyleService {
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) throw new IllegalStateException("Brak usera");
+        return userRepository.findByUsername(auth.getName()).orElseThrow();
+    }
 
     private final UserRepository userRepository;
     private final HuggingFaceAiService aiService;
@@ -262,13 +271,8 @@ public class LearningStyleService {
         return aiService.isAvailable();
     }
 
-    private User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) throw new IllegalStateException("Brak usera");
-        return userRepository.findByUsername(auth.getName()).orElseThrow();
-    }
 
-    private void updateAuthenticationObject(User updatedUser) {
+    public void updateAuthenticationObject(User updatedUser) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(updatedUser, auth.getCredentials(), auth.getAuthorities())
