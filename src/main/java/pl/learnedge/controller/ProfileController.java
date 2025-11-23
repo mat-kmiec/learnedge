@@ -29,35 +29,43 @@ public class ProfileController {
     private final UserService userService;
     private final ProfilePictureService profilePictureService;
     private final LearningStyleService learningStyleService;
+    private final pl.learnedge.service.AuthService authService;
 
     @GetMapping("/profil")
-    public String profile(@AuthenticationPrincipal User user, Model model) {
+    public String profile(Model model) {
+        User user = authService.getCurrentUser();
+        if (user == null) {
+            model.addAttribute("error", "Nie można pobrać danych użytkownika. Spróbuj ponownie.");
+            return "dashboard/profile";
+        }
         UpdateProfileDto profileDto = new UpdateProfileDto();
         profileDto.setFirstName(user.getFirstName());
         profileDto.setLastName(user.getLastName());
-        
-        // Tutaj był błąd, jeśli w serwisie brakowało metody isAiAnalysisAvailable()
-        // Upewnij się, że dodałeś ją w Kroku 0
+        String profilePic = user.getProfilePicture();
+        log.info("[PROFILE] profilePicture from user: {}", profilePic);
+        profileDto.setProfilePicture(profilePic != null ? profilePic : "https://cdn-icons-png.flaticon.com/512/149/149071.png");
+        log.info("[PROFILE] profilePicture set in DTO: {}", profileDto.getProfilePicture());
+        profileDto.setEmail(user.getEmail());
+        profileDto.setLearningStyle(user.getLearningStyle());
         boolean aiAvailable = learningStyleService.isAiAnalysisAvailable();
-        
         model.addAttribute("profile", profileDto);
         model.addAttribute("aiAvailable", aiAvailable);
         return "dashboard/profile";
     }
 
     @PostMapping("/profil")
-    public String updateProfile(@AuthenticationPrincipal User user,
-                              UpdateProfileDto profileDto,
-                              RedirectAttributes ra) {
+    public String updateProfile(UpdateProfileDto profileDto, RedirectAttributes ra) {
+        User user = authService.getCurrentUser();
+        if (user == null) {
+            ra.addFlashAttribute("error", "Nie można pobrać danych użytkownika. Spróbuj ponownie.");
+            return "redirect:/profil";
+        }
         try {
             User updatedUser = userService.updateProfile(user.getId(), profileDto);
-            
-            // Aktualizacja sesji użytkownika
             var auth = new UsernamePasswordAuthenticationToken(
-                updatedUser, user.getPassword(), user.getAuthorities()
+                updatedUser, updatedUser.getPassword(), updatedUser.getAuthorities()
             );
             SecurityContextHolder.getContext().setAuthentication(auth);
-            
             ra.addFlashAttribute("success", "Profil został zaktualizowany.");
         } catch (Exception e) {
             log.error("Błąd aktualizacji profilu", e);

@@ -141,6 +141,17 @@
       transition: all 0.3s ease;
     }
 
+    /* Nowa klasa do obramowania */
+    .btn-bordered {
+      border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    .btn-bordered:hover {
+      border-color: #ffffff !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
     .btn-nav:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -278,7 +289,6 @@
 </head>
 
 <body>
-  <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
   <div th:replace="~{fragments/nav :: navbar}"></div>
@@ -298,7 +308,6 @@
         <div th:replace="~{fragments/alerts :: alertMessages}"></div>
       </div>
 
-      <!-- Progress bar -->
       <div class="progress-bar-container">
         <div class="d-flex justify-content-between mb-2">
           <span class="small">Postęp</span>
@@ -310,7 +319,6 @@
       </div>
 
       <form id="learningStyleForm">
-        <!-- Pytanie 1 -->
         <div class="question-container active" data-question="1">
           <div class="question-number">Pytanie 1 z 20</div>
           <h5 class="fw-bold mb-4">Kiedy uczysz się czegoś nowego, najłatwiej zapamiętujesz gdy...</h5>
@@ -328,7 +336,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 2 -->
         <div class="question-container" data-question="2">
           <div class="question-number">Pytanie 2 z 20</div>
           <h5 class="fw-bold mb-4">Co najczęściej robisz w czasie nauki?</h5>
@@ -346,7 +353,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 3 -->
         <div class="question-container" data-question="3">
           <div class="question-number">Pytanie 3 z 20</div>
           <h5 class="fw-bold mb-4">Podczas prezentacji wolisz gdy:</h5>
@@ -364,7 +370,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 4 -->
         <div class="question-container" data-question="4">
           <div class="question-number">Pytanie 4 z 20</div>
           <h5 class="fw-bold mb-4">Kiedy tłumaczysz drogę komuś:</h5>
@@ -382,7 +387,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 5 -->
         <div class="question-container" data-question="5">
           <div class="question-number">Pytanie 5 z 20</div>
           <h5 class="fw-bold mb-4">W wolnym czasie najchętniej:</h5>
@@ -400,7 +404,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 6 -->
         <div class="question-container" data-question="6">
           <div class="question-number">Pytanie 6 z 20</div>
           <h5 class="fw-bold mb-4">Gdy muszę zapamiętać numer telefonu:</h5>
@@ -418,7 +421,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 7 -->
         <div class="question-container" data-question="7">
           <div class="question-number">Pytanie 7 z 20</div>
           <h5 class="fw-bold mb-4">Podczas nauki języka obcego wolę:</h5>
@@ -436,7 +438,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 8 -->
         <div class="question-container" data-question="8">
           <div class="question-number">Pytanie 8 z 20</div>
           <h5 class="fw-bold mb-4">W sklepie najłatwiej znajduję produkty gdy:</h5>
@@ -454,7 +455,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 9 -->
         <div class="question-container" data-question="9">
           <div class="question-number">Pytanie 9 z 20</div>
           <h5 class="fw-bold mb-4">Przy rozwiązywaniu problemów matematycznych:</h5>
@@ -472,7 +472,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 10 -->
         <div class="question-container" data-question="10">
           <div class="question-number">Pytanie 10 z 20</div>
           <h5 class="fw-bold mb-4">Gdy się stresuję przed egzaminem:</h5>
@@ -490,7 +489,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 11 -->
         <div class="question-container" data-question="11">
           <div class="question-number">Pytanie 11 z 20</div>
           <h5 class="fw-bold mb-4">Najlepiej koncentruję się gdy:</h5>
@@ -508,7 +506,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 12 -->
         <div class="question-container" data-question="12">
           <div class="question-number">Pytanie 12 z 20</div>
           <h5 class="fw-bold mb-4">Podczas robienia notatek:</h5>
@@ -526,7 +523,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 13 -->
         <div class="question-container" data-question="13">
           <div class="question-number">Pytanie 13 z 20</div>
           <h5 class="fw-bold mb-4">Przy montażu mebli z instrukcją:</h5>
@@ -544,7 +540,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 14 -->
         <div class="question-container" data-question="14">
           <div class="question-number">Pytanie 14 z 20</div>
           <h5 class="fw-bold mb-4">Kiedy uczę się nowego słowa:</h5>
@@ -562,7 +557,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 15 -->
         <div class="question-container" data-question="15">
           <div class="question-number">Pytanie 15 z 20</div>
           <h5 class="fw-bold mb-4">Podczas oglądania filmu edukacyjnego:</h5>
@@ -580,7 +574,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 16 -->
         <div class="question-container" data-question="16">
           <div class="question-number">Pytanie 16 z 20</div>
           <h5 class="fw-bold mb-4">Gdy spotykam nową osobę, najlepiej zapamiętam:</h5>
@@ -598,7 +591,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 17 -->
         <div class="question-container" data-question="17">
           <div class="question-number">Pytanie 17 z 20</div>
           <h5 class="fw-bold mb-4">Podczas czytania książki wolę:</h5>
@@ -616,7 +608,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 18 -->
         <div class="question-container" data-question="18">
           <div class="question-number">Pytanie 18 z 20</div>
           <h5 class="fw-bold mb-4">Kiedy muszę zapamiętać listę rzeczy do zrobienia:</h5>
@@ -634,7 +625,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 19 -->
         <div class="question-container" data-question="19">
           <div class="question-number">Pytanie 19 z 20</div>
           <h5 class="fw-bold mb-4">Na wykładzie najlepiej uczę się gdy:</h5>
@@ -652,7 +642,6 @@
           </label>
         </div>
 
-        <!-- Pytanie 20 -->
         <div class="question-container" data-question="20">
           <div class="question-number">Pytanie 20 z 20</div>
           <h5 class="fw-bold mb-4">Podczas nauki na egzamin wolę:</h5>
@@ -670,7 +659,6 @@
           </label>
         </div>
 
-        <!-- Opis tekstowy (opcjonalny - na końcu) -->
         <div class="question-container" data-question="21">
           <div class="question-number">Dodatkowy opis</div>
           <h5 class="fw-bold mb-4">Opisz swoimi słowami, jak najchętniej się uczysz:</h5>
@@ -682,29 +670,25 @@
           </div>
         </div>
 
-        <!-- Navigation buttons -->
         <div class="navigation-buttons">
           <button type="button" class="btn btn-secondary btn-nav" id="prevBtn" onclick="changeQuestion(-1)">
             <i class="bi bi-arrow-left me-2"></i>Wstecz
           </button>
-          <button type="button" class="btn btn-outline-secondary btn-nav" id="skipBtn" onclick="skipQuestion()">
-            <i class="bi bi-skip-forward me-2"></i>Pomiń
-          </button>
+          
           <button type="button" class="btn btn-primary btn-nav" id="nextBtn" onclick="changeQuestion(1)">
             Dalej<i class="bi bi-arrow-right ms-2"></i>
           </button>
-          <button type="submit" class="btn btn-accent btn-nav" id="submitBtn" style="display: none;">
+          <button type="submit" class="btn btn-accent btn-nav btn-bordered" id="submitBtn" style="display: none;">
             <i class="bi bi-check-circle me-2"></i>Zakończ ankietę
           </button>
         </div>
       </form>
 
-      <!-- Wynik -->
       <div id="aiResult" class="d-none">
         <div class="alert alert-success text-center">
           <h4 class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Analiza zakończona!</h4>
           <div id="aiOutput" class="fs-5"></div>
-          <a href="/profil" class="btn btn-accent mt-3">Przejdź do profilu</a>
+          <a href="/profil" class="btn btn-accent mt-3 btn-bordered">Przejdź do profilu</a>
         </div>
       </div>
     </div>
@@ -770,9 +754,7 @@
       }
     }
 
-    function skipQuestion() {
-      changeQuestion(1);
-    }
+    // Funkcja skipQuestion usunięta, ponieważ przycisk został usunięty
 
     function updateProgress() {
       const progress = (currentQuestionIndex / totalQuestions) * 100;
@@ -785,17 +767,16 @@
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
       const submitBtn = document.getElementById('submitBtn');
-      const skipBtn = document.getElementById('skipBtn');
+      
+      // Usunięto odwołania do skipBtn
 
       prevBtn.style.display = currentQuestionIndex === 1 ? 'none' : 'block';
 
       if (currentQuestionIndex === totalQuestions) {
         nextBtn.style.display = 'none';
-        skipBtn.style.display = 'none';
         submitBtn.style.display = 'block';
       } else {
         nextBtn.style.display = 'block';
-        skipBtn.style.display = 'block';
         submitBtn.style.display = 'none';
       }
     }
@@ -959,8 +940,13 @@
             const offset = (Math.random() - 0.5) * anglePerSegment;
 
             // --- SVG KOŁA ---
-            let wheelSVG = `<svg id="animatedWheel" width="480" height="480" viewBox="0 0 480 480" style="transform:rotate(-90deg); transition:transform 3s cubic-bezier(0.25, 1, 0.5, 1);">
+            // Używamy grupy <g id="spinningPart"> do obracania tylko kolorowych elementów
+            let wheelSVG = `<svg width="480" height="480" viewBox="0 0 480 480">
               <defs>
+                <radialGradient id="wheelBgGrad" cx="50%" cy="50%" r="80%">
+                  <stop offset="0%" stop-color="#fff" />
+                  <stop offset="100%" stop-color="#e0f7fa" />
+                </radialGradient>
                 <radialGradient id="visualGrad" cx="50%" cy="50%" r="70%">
                   <stop offset="0%" stop-color="#b3e5fc" />
                   <stop offset="100%" stop-color="#4fc3f7" />
@@ -973,13 +959,21 @@
                   <stop offset="0%" stop-color="#c8e6c9" />
                   <stop offset="100%" stop-color="#81c784" />
                 </radialGradient>
-                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="8" flood-color="#222" flood-opacity="0.4" />
+                <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#222" flood-opacity="0.25" />
+                </filter>
+                <filter id="emojiOutline" x="-10%" y="-10%" width="120%" height="120%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#fff" flood-opacity="1" />
+                </filter>
+                <filter id="logoShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#222" flood-opacity="0.3" />
                 </filter>
               </defs>
-              <g filter="url(#shadow)">
+              
+              <circle cx="240" cy="240" r="220" fill="url(#wheelBgGrad)" filter="url(#shadow)" />
+              
+              <g id="spinningPart" style="transform-origin: 240px 240px; transform: rotate(-90deg); transition: transform 3s cubic-bezier(0.25, 1, 0.5, 1);">
                 ${activeStyles.map((s, idx) => {
-                  const numSegments = activeStyles.length;
                   // Rysowanie segmentów
                   const startAngle = (idx / numSegments) * 2 * Math.PI;
                   const endAngle = ((idx + 1) / numSegments) * 2 * Math.PI;
@@ -988,19 +982,21 @@
                   const x2 = 240 + 210 * Math.cos(endAngle);
                   const y2 = 240 + 210 * Math.sin(endAngle);
                   const largeArcFlag = numSegments === 1 ? 1 : 0;
-                  return `<path d="M240,240 L${x1},${y1} A210,210 0 ${largeArcFlag},1 ${x2},${y2} Z" fill="${activeGradients[idx]}" stroke="#222" stroke-width="4" />`;
+                  return `<path d="M240,240 L${x1},${y1} A210,210 0 ${largeArcFlag},1 ${x2},${y2} Z" fill="${activeGradients[idx]}" stroke="#222" stroke-width="6" />`;
                 }).join('')}
+                
                 ${activeStyles.map((s, idx) => {
-                  // Tekst
+                  // Emotka
                   const angle = ((idx + 0.5) / activeStyles.length) * 2 * Math.PI;
                   const deg = (angle * 180 / Math.PI);
                   const x = 240 + 160 * Math.cos(angle);
                   const y = 240 + 160 * Math.sin(angle);
-                  return `<text x="${x}" y="${y}" text-anchor="middle" alignment-baseline="middle" font-size="3em" font-weight="bold" fill="#222" style="transform-box: fill-box; transform-origin: center; transform: rotate(${deg}deg);">${s}</text>`;
+                  return `<text x="${x}" y="${y}" text-anchor="middle" alignment-baseline="middle" font-size="4em" font-weight="bold" fill="#222" filter="url(#emojiOutline)" style="transform-box: fill-box; transform-origin: center; transform: rotate(${deg}deg);">${s}</text>`;
                 }).join('')}
               </g>
-              <circle cx="240" cy="240" r="100" fill="#fff" stroke="#bbb" stroke-width="4" />
-              <text x="240" y="250" dy="0.3em" text-anchor="middle" font-size="2em" font-weight="bold" fill="#222" style="transform: rotate(90deg); transform-box: fill-box; transform-origin: center;">Ruletka</text>
+
+              <circle cx="240" cy="240" r="100" fill="#fff" stroke="#bbb" stroke-width="4" filter="url(#logoShadow)" />
+              <image href="/img/logo-icon.png" x="190" y="190" width="100" height="100" />
             </svg>`;
 
             let wheelHTML = `<div style="background:#fff;padding:44px 32px 32px 32px;border-radius:36px;box-shadow:0 0 48px #222;text-align:center;min-width:520px;max-width:98vw;">
@@ -1016,12 +1012,13 @@
 
             // --- ANIMACJA ---
             setTimeout(() => {
-              const wheel = document.getElementById('animatedWheel');
+              // Celujemy teraz w grupę wewnątrz SVG
+              const spinningPart = document.getElementById('spinningPart');
               // Kąt docelowy: środek segmentu + losowe przesunięcie
               const winnerAngleCenter = (winnerIdx * anglePerSegment) + (anglePerSegment / 2) + offset;
               const extraSpins = 360 * 5; // 5 pełnych obrotów
               const targetRotation = extraSpins - winnerAngleCenter - 90;
-              wheel.style.transform = `rotate(${targetRotation}deg)`;
+              spinningPart.style.transform = `rotate(${targetRotation}deg)`;
             }, 100);
 
             // Po animacji (3 sekundy)
@@ -1044,22 +1041,22 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ style: backendStyle })
               })
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) {
-                 resultDiv.innerHTML += `<br><span style='color:green;font-size:0.8em;'>Zapisano!</span>`;
-                } else {
-                 resultDiv.innerHTML += `<br><span style='color:red;font-size:0.8em;'>Błąd zapisu!</span>`;
-                }
-              })
-              .catch(() => {
-                resultDiv.innerHTML += `<br><span style='color:red;font-size:0.8em;'>Błąd sieci!</span>`;
-              });
+                .then(res => res.json())
+                .then(data => {
+                  if (data.success) {
+                    resultDiv.innerHTML += `<br><span style='color:green;font-size:0.8em;'>Zapisano!</span>`;
+                  } else {
+                    resultDiv.innerHTML += `<br><span style='color:red;font-size:0.8em;'>Błąd zapisu!</span>`;
+                  }
+                })
+                .catch(() => {
+                  resultDiv.innerHTML += `<br><span style='color:red;font-size:0.8em;'>Błąd sieci!</span>`;
+                });
               // Zamknij po chwili
-                setTimeout(() => {
-                  rouletteModal.remove();
-                  window.location.href = '/profil';
-                }, 3000);
+              setTimeout(() => {
+                rouletteModal.remove();
+                window.location.href = '/profil';
+              }, 3000);
             }, 3100);
           }
         } else {
