@@ -112,7 +112,7 @@ public class LearningStyleService {
         }
 
         if (detectedStyle != LearningStyle.MIXED) {
-            int dynamicWeight = (int) Math.ceil(closedCount * 0.4);
+            int dynamicWeight = (int) Math.ceil(closedCount * 0.3);
             int weightToAdd = Math.min(MAX_OPEN_ANSWER_WEIGHT, Math.max(dynamicWeight, MIN_OPEN_ANSWER_WEIGHT));
             scores.merge(detectedStyle, weightToAdd, Integer::sum);
             log.info("DODANO {} pkt do stylu {}", weightToAdd, detectedStyle);
