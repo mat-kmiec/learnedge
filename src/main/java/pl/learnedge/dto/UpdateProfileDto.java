@@ -6,4 +6,7 @@ import lombok.Data;
 public class UpdateProfileDto {
     private String firstName;
     private String lastName;
+    private String profilePicture;
+    private String email;
+    private String learningStyle;
 }

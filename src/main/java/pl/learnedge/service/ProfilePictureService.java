@@ -81,17 +81,24 @@ public class ProfilePictureService {
         if (auth == null || !auth.isAuthenticated()) {
             throw new RuntimeException("Brak zalogowanego użytkownika");
         }
-        String username;
         Object principal = auth.getPrincipal();
-        if (principal instanceof UserDetails ud) {
-            username = ud.getUsername();
-        } else if (principal instanceof User u) {
-            username = u.getUsername();
-        } else {
-            username = auth.getName();
-        }
-        return userRepository.findByUsername(username)
+        if (principal instanceof org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser oidcUser) {
+            String email = oidcUser.getEmail();
+            return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie został znaleziony: " + email));
+        } else if (principal instanceof UserDetails ud) {
+            String username = ud.getUsername();
+            return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Użytkownik nie został znaleziony: " + username));
+        } else if (principal instanceof User u) {
+            String username = u.getUsername();
+            return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie został znaleziony: " + username));
+        } else {
+            String username = auth.getName();
+            return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie został znaleziony: " + username));
+        }
     }
 
     private String getFileExtension(String filename) {

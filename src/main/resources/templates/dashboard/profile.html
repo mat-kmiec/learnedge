@@ -48,13 +48,17 @@
           <div class="col-lg-4 text-center">
             <div class="profile-card h-100 d-flex flex-column align-items-center justify-content-center">
               <img
-                th:src="${#authentication.principal.profilePicture != null ? #authentication.principal.profilePicture : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
+                th:src="${profile.profilePicture != null and !#strings.isEmpty(profile.profilePicture) ? profile.profilePicture : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
                 alt="Avatar"
                 class="profile-avatar mb-3"
                 id="profileImage"
               />
-              <h4 class="fw-bold" th:text="${#authentication.principal.firstName + ' ' + #authentication.principal.lastName}">Jan Kowalski</h4>
-              <p class="text-light small mb-3" th:text="${#authentication.principal.email}">jan.kowalski@example.com</p>
+              <h4 class="fw-bold"
+                th:text="${(profile.firstName != null and !#strings.isEmpty(profile.firstName) ? profile.firstName : '')
+                  + (profile.lastName != null and !#strings.isEmpty(profile.lastName) ? ' ' + profile.lastName : '')}">
+                Jan Kowalski
+              </h4>
+              <p class="text-light small mb-3" th:text="${profile.email}">jan.kowalski@example.com</p>
               <input type="file" 
                      id="profilePictureInput" 
                      accept="image/*" 
@@ -163,7 +167,8 @@
     <div class="mt-4 d-flex align-items-center gap-3" id="currentLearningStyleDisplay">
       <i class="bi bi-person-check text-accent fs-4"></i>
       <p class="mb-0 text-light small">
-        Twój aktualny styl uczenia: <strong class="text-accent" id="currentLearningStyleText" th:text="${#authentication.principal.learningStyle != null ? (#authentication.principal.learningStyle == 'VISUAL' ? '👁️ Wzrokowiec' : (#authentication.principal.learningStyle == 'AUDITORY' ? '🎧 Słuchowiec' : '✋ Kinestetyk')) : 'Nie ustawiono'}">Nie ustawiono</strong>
+        Twój aktualny styl uczenia: <strong class="text-accent" id="currentLearningStyleText"
+          th:text="${profile.learningStyle != null ? (profile.learningStyle == 'VISUAL' ? '👁️ Wzrokowiec' : (profile.learningStyle == 'AUDITORY' ? '🎧 Słuchowiec' : '✋ Kinestetyk')) : 'Nie ustawiono'}">Nie ustawiono</strong>
       </p>
     </div>
   </div>
