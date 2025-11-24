@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="insert-python-lesson-5" author="martyna">
+
+        <insert tableName="lessons">
+            <column name="id" valueNumeric="2005"/>
+            <column name="title" value="Możliwości Pythona i podstawowe biblioteki"/>
+            <column name="lesson_order" valueNumeric="5"/>
+            <column name="slug" value="biblioteki-i-mozliwosci"/>
+            <column name="course_id" valueNumeric="1001"/>
+
+            <column name="content"><![CDATA[
+
+<!-- ====================================================== -->
+<!-- Tytuł lekcji -->
+<!-- ====================================================== -->
+<div data-learning="0">
+    <h2 class="course-section-title">Możliwości Pythona i popularne biblioteki</h2>
+
+    <div class="course-text-block mt-3">
+        <h5 class="course-text-title"><i class="bi bi-lightning-charge"></i> O czym jest ta lekcja?</h5>
+        <div class="course-text-content">
+            <p>Python posiada ogromne możliwości dzięki bibliotekom, które rozszerzają jego funkcjonalność.
+            Jeśli potrzebnej Ci biblioteki nie masz zainstalowanej w swoim środowisku programistycznym,
+            użyj np. wbudowanego terminala i zainstaluj ją poleceniem pip install nazwaBiblioteki.
+            W tej lekcji poznasz podstawowe moduły wbudowane oraz pierwsze kroki z bibliotekami do danych
+            i wykresów.</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- 🎧 SŁUCHOWIEC -->
+<!-- ====================================================== -->
+<div data-learning="1">
+
+    <div class="course-audio-container mt-4">
+        <audio controls src="/audio/bibliotekipythonsluch.m4a"></audio>
+    </div>
+    <hr>
+    <div class="course-fact">
+    <p> Importuj biblioteki za pomocą polecenia <code>import biblioteka</code> umieszczonego na
+    górze pliku .py. Math do obliczeń matematycznych, np. liczenia pierwiastków
+     - <code>sqrt()</code>. Pandas do pracy z danymi np. przechowywania ich w ramkach danych.
+     <pre class="code-block">
+        import pandas as pd
+
+    data = {
+        "Uczeń": ["Anna", "Bartek", "Celina", "Dawid", "Ewa"],
+        "Matematyka": [5, 3, 4, 2, 5],
+        "Biologia": [4, 5, 3, 4, 5],
+        "Historia": [3, 4, 5, 3, 4]
+    }
+
+    df = pd.DataFrame(data)
+    print(df)
+        </pre>
+    </div>
+
+    <p class="text-light mt-2">Krótki przegląd bibliotek i możliwości języka.</p>
+
+    <div class="course-audio-container mt-4">
+        <audio controls src="/audio/matplotlibsluchowiec.m4a"></audio>
+    </div>
+    <div class="course-image-container small-img-container mt-3">
+    <pre style="background:#013642; color:#e0f7ff; padding:15px; border-radius:10px;">
+    import matplotlib.pyplot as plt
+    import numpy as np
+    dane = np.random.randn(1000)
+    plt.hist(dane, bins=30)
+    plt.title("Przykładowy histogram")
+    plt.xlabel("Wartość")
+    plt.ylabel("Częstość")
+    plt.show()
+    <img src="/img/histogramsluchowiec.png"
+             style="width:100%; margin-top:15px; border-radius:10px;">
+    </pre>
+    </div>
+
+    <p class="text-light mt-2">Wprowadzenie do pracy z danymi i wykresami.</p>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- 👀 WZROKOWIEC -->
+<!-- ====================================================== -->
+<div data-learning="2">
+
+    <h4 class="mt-3">1. Wbudowane moduły Pythona</h4>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <ul class="course-list">
+                <li><code>math</code> – funkcje matematyczne</li>
+                <li><code>random</code> – losowanie liczb</li>
+                <li><code>pandas</code> – praca z danymi</li>
+                <li><code>matplotlib</code> – tworzenie wykresów</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <img src="/img/bibliotekipython.png" class="img-fluid rounded shadow" alt="Biblioteki Python">
+        </div>
+    </div>
+
+    <h4 class="mt-4">2. Pandas — praca z danymi</h4>
+    <p>Tak może wyglądać prosty zestaw danych utworzony za pomocą biblioteki <strong>pandas</strong>:</p>
+
+    <div class="course-image-container small-img-container mt-3">
+    <pre style="background:#013642; color:#e0f7ff; padding:15px; border-radius:10px;">
+    import pandas as pd
+
+    data = {
+        "Uczeń": ["Anna", "Bartek", "Celina", "Dawid", "Ewa"],
+        "Matematyka": [5, 3, 4, 2, 5],
+        "Biologia": [4, 5, 3, 4, 5],
+        "Historia": [3, 4, 5, 3, 4]
+    }
+
+    df = pd.DataFrame(data)
+    print(df)
+    </pre>
+    </div>
+
+        <p class="mt-3">Wynik w formie tabeli:</p>
+
+    <div style="
+        background:#004f50;
+        padding:18px;
+        border-radius:12px;
+        color:white;
+        width:100%;
+        max-width:520px;
+        margin-top:10px;
+        font-size:15px;">
+    <table style="width:100%; color:white;">
+    <tr><th>Uczeń</th><th>Matem.</th><th>Bio.</th><th>Hist.</th></tr>
+    <tr><td>Anna</td><td>5</td><td>4</td><td>3</td></tr>
+    <tr><td>Bartek</td><td>3</td><td>5</td><td>4</td></tr>
+    <tr><td>Celina</td><td>4</td><td>3</td><td>5</td></tr>
+    <tr><td>Dawid</td><td>2</td><td>4</td><td>3</td></tr>
+    <tr><td>Ewa</td><td>5</td><td>5</td><td>4</td></tr>
+    </table>
+    </div>
+
+    <h4 class="mt-4">3. Matplotlib — tworzenie wykresów</h4>
+    <div class="course-image-container small-img-container mt-3">
+        <pre style="background:#013642; color:#e0f7ff; padding:12px; border-radius:10px; font-size:15px;">
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    srednie = df[["Matematyka", "Biologia", "Historia"]].mean()
+
+    plt.figure(figsize=(7, 4))
+    plt.bar(srednie.index, srednie.values, color=["#1f77b4", "#2ca02c", "#ff7f0e"])
+
+    plt.title("Średnie oceny z przedmiotów")
+    plt.ylabel("Średnia ocena")
+    plt.ylim(0, 6)
+
+    plt.show()
+            </pre>
+        </div>
+
+        <!-- 3. Podgląd wykresu -->
+        <h4 class="mt-4">3. Tak wygląda wynikowy wykres średnich ocen z wcześniej uwtorzonego DataFrame:</h4>
+
+        <div class="course-image-container small-img-container mt-3">
+            <img src="/img/wykrespythonwzrokowiec.png"
+                 alt="Wykres średnich ocen"
+                 class="course-image">
+        </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- 👐 KINESTETYK -->
+<!-- ====================================================== -->
+<div data-learning="3">
+
+    <div class="course-fact">
+        <p>Biblioteka math zawiera gotowe funkcje matematyczne
+         – pierwiastki, zaokrąglenia, stałe jak π.</p>
+    </div>
+    <!-- Zadanie 1 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>1. Użyj funkcji z modułu math:</strong></p>
+        <button class="btn btn-warning" onclick="kin5_math()">Pokaż przykłady</button>
+    </div>
+
+    <!-- Zadanie 2 -->
+    <div class="course-fact">
+        <p>Biblioteka random pozwala losować liczby i tworzyć element losowości w programie.
+        W poniższym przykładzie poznasz jej działanie.</p>
+    </div>
+    <div class="course-practice-block mt-4">
+        <p><strong>2. Wylosuj liczbę od 1 do 10:</strong></p>
+        <button class="btn btn-success" onclick="kin5_random()">Losuj!</button>
+    </div>
+
+    <div class="course-fact">
+        <p>Pandas służy do pracy z danymi — pozwala wczytywać pliki, tworzyć tabelki (DataFrame)
+        i je analizować. DataFrame to tabela z kolumnami i wierszami — jak arkusz Excel w Pythonie.</p>
+    </div>
+    <!-- Zadanie 3 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>3. Jak Pandas wczytuje dane?</strong></p>
+
+<pre style="background:#002b36; color:#eee; padding:10px; border-radius:8px;">
+import pandas as pd
+
+df = pd.read_csv("data.csv")
+print(df.head())
+</pre>
+
+        <select class="practice-input" id="kin5_pandas_q">
+            <option value="">-- wybierz --</option>
+            <option value="ok">Wczytuje plik i pokazuje pierwsze wiersze</option>
+            <option value="wrong1">Tworzy wykres słupkowy</option>
+            <option value="wrong2">Sortuje plik automatycznie</option>
+        </select>
+        <button class="btn btn-info" onclick="kin5_pandas()">Sprawdź</button>
+    </div>
+
+    <div class="course-fact">
+        <p>Matplotlib pozwala tworzyć wykresy — liniowe, słupkowe, kołowe i wiele innych.
+        Jest bardzo pomocna w analizie danych i ich rozkładów.</p>
+    </div>
+    <!-- Zadanie 4 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>4. Jak wygląda kod tworzący wykres?</strong></p>
+
+<textarea id="kin5_editor" class="practice-input" style="height:260px; font-size:16px;">
+import matplotlib.pyplot as plt
+
+plt.plot([1,2,3], [1,4,9])
+plt.show()
+</textarea>
+
+        <button class="btn btn-warning" onclick="kin5_plot()">Pokaż symulację</button>
+    </div>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- QUIZ -->
+<!-- ====================================================== -->
+<div data-learning="0">
+    <h3 class="course-section-title mt-5">📝 Quiz – sprawdź się!</h3>
+
+    <div class="course-quiz-block mt-3">
+        <p>1. Która biblioteka służy do operacji matematycznych?</p>
+        <div class="course-quiz-option" data-correct="true">math</div>
+        <div class="course-quiz-option" data-correct="false">random</div>
+        <div class="course-quiz-option" data-correct="false">matplotlib</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>2. Która biblioteka wczytuje dane tabelaryczne?</p>
+        <div class="course-quiz-option" data-correct="true">pandas</div>
+        <div class="course-quiz-option" data-correct="false">math</div>
+        <div class="course-quiz-option" data-correct="false">random</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>3. plt.plot() pochodzi z:</p>
+        <div class="course-quiz-option" data-correct="true">matplotlib</div>
+        <div class="course-quiz-option" data-correct="false">pandas</div>
+        <div class="course-quiz-option" data-correct="false">csv</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>4. random.randint(1, 10) zwróci:</p>
+        <div class="course-quiz-option" data-correct="true">Losową liczbę od 1 do 10</div>
+        <div class="course-quiz-option" data-correct="false">Stałą wartość 5</div>
+        <div class="course-quiz-option" data-correct="false">Błąd</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>5. Funkcja df.head() pokazuje:</p>
+        <div class="course-quiz-option" data-correct="true">Pierwsze wiersze danych</div>
+        <div class="course-quiz-option" data-correct="false">Ostatnie wiersze danych</div>
+        <div class="course-quiz-option" data-correct="false">Tylko nazwy kolumn</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- MODAL DLA KINESTETYKA -->
+<!-- ====================================================== -->
+<div id="typesBackdrop" class="type-modal-backdrop"></div>
+
+<div id="typesModal" class="type-modal">
+    <span class="close-type-modal">&times;</span>
+
+    <!-- NOWY kontener na treść dynamiczną -->
+    <div id="typesModalContent" style="white-space:pre-line;"></div>
+</div>
+
+
+
+<style>
+.type-modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    z-index: 999998;
+}
+.type-modal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10, 45, 55, 0.95);
+    padding: 25px;
+    border-radius: 14px;
+    width: 550px;
+    max-width: 90%;
+    color: #fff;
+    box-shadow: 0 0 35px rgba(0, 180, 200, 0.45);
+    z-index: 999999;
+}
+.close-type-modal {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-size: 28px;
+}
+</style>
+
+
+<script>
+// Modal
+function openTypesModal(text) {
+    document.getElementById("typesModalContent").innerHTML = `<pre>${text}</pre>`;
+    document.getElementById("typesBackdrop").style.display = "block";
+    document.getElementById("typesModal").style.display = "block";
+}
+function closeTypesModal() {
+    document.getElementById("typesBackdrop").style.display = "none";
+    document.getElementById("typesModal").style.display = "none";
+}
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector(".close-type-modal").onclick = closeTypesModal;
+    document.getElementById("typesBackdrop").onclick = closeTypesModal;
+});
+
+// Zadanie 1
+function kin5_math() {
+    openTypesModal(
+        "Przykłady z modułu math:\n\n" +
+        "math.sqrt(16) → 4\n" +
+        "math.pi → 3.14159\n" +
+        "math.sin(0) → 0"
+    );
+}
+
+// Zadanie 2
+function kin5_random() {
+    let liczba = Math.floor(Math.random() * 10) + 1;
+    openTypesModal("🎲 Wylosowana liczba: " + liczba);
+}
+
+// Zadanie 3
+function kin5_pandas() {
+    let v = document.getElementById("kin5_pandas_q").value;
+    if (!v) {
+        openTypesModal("⚠️ Wybierz odpowiedź!");
+        return;
+    }
+    if (v === "ok") {
+        openTypesModal("✔️ Poprawnie! df.head() pokazuje pierwsze 5 wierszy.");
+    } else {
+        openTypesModal("❌ Niepoprawnie — spróbuj ponownie!");
+    }
+}
+
+// Zadanie 4
+function kin5_plot() {
+    let code = document.getElementById("kin5_editor").value;
+
+    document.getElementById("typesModalContent").innerHTML = `
+        <pre>${code}</pre>
+        <img src="/img/wykrespythonkinestetyk.png"
+             style="width:100%; margin-top:15px; border-radius:10px;">
+    `;
+
+    document.getElementById("typesBackdrop").style.display = "block";
+    document.getElementById("typesModal").style.display = "block";
+}
+
+
+</script>
+
+]]></column>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

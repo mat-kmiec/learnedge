@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="insert-python-course" author="martyna">
+
+        <!-- KURS -->
+        <insert tableName="courses">
+            <column name="id" valueNumeric="1001"/>
+            <column name="name" value="Python - podstawy"/>
+            <column name="description" value="Wprowadzenie do języka Python, składni, zmiennych i podstawowych struktur danych."/>
+            <column name="difficulty" value="łatwy"/>
+            <column name="slug" value="python-podstawy"/>
+        </insert>
+
+        <!-- LEKCJA 1 -->
+        <insert tableName="lessons">
+            <column name="id" valueNumeric="2001"/>
+            <column name="title" value="Zmienne i typy danych"/>
+            <column name="lesson_order" valueNumeric="1"/>
+            <column name="slug" value="zmienne-i-typy-danych"/>
+            <column name="course_id" valueNumeric="1001"/>
+            <column name="content">
+                <![CDATA[
+
+<div data-learning="0">
+    <h2 class="course-section-title">Zmienne i typy danych w Pythonie</h2>
+    <div class="course-text-block">
+        <h5 class="course-text-title"><i class="bi bi-book"></i>Co poznasz w tej lekcji?</h5>
+        <div class="course-text-content">
+            <p>W tej lekcji poznasz absolutne fundamenty języka Python — zmienne oraz typy danych.
+             To na nich opiera się cała logika programów. Dzięki prostocie składni jaką oferuje Python
+              szybko nauczysz się z nich korzystać i używać ich we własnych programach!</p>
+        </div>
+    </div>
+</div>
+
+<!--  🎧 SEKCJA DLA SŁUCHOWCA  -->
+
+<div data-learning="1">
+
+    <div class="course-audio-container mt-4">
+        <audio controls src="/audio/zmiennepython.m4a"></audio>
+    </div>
+    <p class="text-light mt-2">1. Posłuchaj opisu podstaw działania zmiennych.</p>
+
+    <div class="course-audio-container mt-4">
+        <audio controls src="/audio/typydanychpython.m4a"></audio>
+    </div>
+    <p class="text-light mt-2">2. Poznaj typy danych.</p>
+
+</div>
+
+<!--  👀 SEKCJA DLA WZROKOWCA  -->
+<div data-learning="2">
+
+    <h4 class="mt-4">2. Drzewo typów danych w Pythonie</h4>
+    <div class="course-image-container small-img-container mt-4">
+    <img class="course-image" src="/img/pythontypyschemat.jpg" alt="Typy Python">
+    </div>
+
+    <h4 class="mt-4">3. Zapoznaj się bliżej z typami danych i zmiennymi.</h4>
+    <div class="course-video-container mt-2">
+        <video controls style="width:100%; height:100%; object-fit:contain; background:#000;">
+            <source src="/video/zmienneitypypython.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <h4 class="mt-4">3. Tabela typów danych</h4>
+    <div class="course-text-block mt-3">
+        <<table class="course-table">>
+            <thead>
+            <tr><th>Typ</th><th>Przykład</th><th>Opis</th></tr>
+            </thead>
+            <tbody>
+            <tr><td><strong>int</strong></td><td>5, 10, 999</td><td>Liczby całkowite</td></tr>
+            <tr><td><strong>float</strong></td><td>3.14, 0.5</td><td>Liczby zmiennoprzecinkowe</td></tr>
+            <tr><td><strong>str</strong></td><td>"tekst"</td><td>Łańcuch znaków</td></tr>
+            <tr><td><strong>bool</strong></td><td>True, False</td><td>Wartości logiczne</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--  👐 SEKCJA DLA KINESTETYKA  -->
+<div data-learning="3">
+
+    <!-- 🔥 ZADANIE 0 — Wypróbuj typy danych -->
+
+    <div class="course-practice-block mt-4">
+        <p><strong>0. Sprawdź typy danych — kliknij przycisk!</strong></p>
+        <button class="btn btn-warning" onclick="showTypes()">Pokaż typy danych</button>
+
+        <p class="text-light mt-2">
+            W Pythonie możesz sprawdzić typ danych za pomocą <code>type()</code>.
+            Kliknij, aby zobaczyć przykłady!
+        </p>
+    </div>
+
+    <!-- Zadanie 1 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>1. Kliknij, aby zobaczyć przykład zmiennej:</strong></p>
+        <button class="btn btn-primary" onclick="document.getElementById('ex1').style.display='block'">
+            Pokaż przykład
+        </button>
+
+        <pre id="ex1" style="display:none; margin-top:15px;">x = 10
+print(x)</pre>
+    </div>
+
+    <!-- Zadanie 2 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>2. Uzupełnij wartość zmiennej:</strong></p>
+
+        <input class="practice-input" id="task2" placeholder="np. 42 albo Hello">
+        <button class="btn btn-success" onclick="
+            let v = document.getElementById('task2').value;
+
+            if (!v.trim()) {
+                alert('⚠️ Musisz coś wpisać!');
+                return;
+            }
+
+            if (!isNaN(v)) {
+                alert('Dobrze! ✔️ WPISAŁAŚ LICZBĘ (Python → int lub float).');
+            } else {
+                alert('Super! ✔️ WPISAŁAŚ TEKST (Python → str).');
+            }
+        ">
+            Sprawdź
+        </button>
+    </div>
+
+    <!-- Zadanie 3  -->
+    <div class="course-practice-block mt-4">
+        <p><strong>3. Wybierz poprawny typ danych:</strong></p>
+
+        <select class="practice-input" id="task3">
+            <option value="">-- wybierz --</option>
+            <option value="int">int</option>
+            <option value="str">str</option>
+            <option value="bool">bool</option>
+        </select>
+
+        <button class="btn btn-info" onclick="
+            let t = document.getElementById('task3').value;
+
+            if (!t) {
+                alert('⚠️ Najpierw wybierz typ danych!');
+                return;
+            }
+
+            if (t === 'str') {
+                alert('🎉 Brawo! „hello” to typ → str (łańcuch znaków)');
+            } else {
+                alert('❌ Nie tym razem! „hello” NIE jest ' + t + '.');
+            }
+        ">
+            Sprawdź
+        </button>
+
+
+        <p class="text-light mt-2">
+            Podpowiedź: <code>"Hello"</code> jest ciągiem znaków.
+        </p>
+    </div>
+</div>
+
+
+<!--  WSKAZÓWKI I UWAGI  -->
+<div data-learning="0">
+    <div class="course-idea mt-5">
+        <i class="bi bi-lightbulb"></i>
+        <strong>Pamiętaj:</strong> Python sam rozpoznaje typ danych — nie musisz go deklarować.
+    </div>
+
+    <div class="course-warning mt-4">
+        <i class="bi bi-exclamation-triangle"></i>
+        Zmienna powstaje dopiero wtedy, gdy przypiszesz jej wartość.
+    </div>
+</div>
+
+<!--  QUIZ – dla wszystkich -->
+<div data-learning="0">
+    <h3 class="course-section-title mt-5">📝 Quiz – sprawdź się!</h3>
+
+    <div class="course-quiz-block mt-3">
+        <p>1. Jak tworzymy zmienną w Pythonie?</p>
+        <div class="course-quiz-option" data-correct="true">x = 10</div>
+        <div class="course-quiz-option" data-correct="false">int x = 10</div>
+        <div class="course-quiz-option" data-correct="false">var x: 10</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>2. Który typ oznacza liczbę całkowitą?</p>
+        <div class="course-quiz-option" data-correct="true">int</div>
+        <div class="course-quiz-option" data-correct="false">str</div>
+        <div class="course-quiz-option" data-correct="false">bool</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>3. Wynik type("Hello") to:</p>
+        <div class="course-quiz-option" data-correct="true">&lt;class 'str'&gt;</div>
+        <div class="course-quiz-option" data-correct="false">&lt;class 'text'&gt;</div>
+        <div class="course-quiz-option" data-correct="false">&lt;string&gt;</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+</div>
+
+<!-- MODAL – wyskakujące okno -->
+<!-- TŁO -->
+<div id="typesBackdrop" class="type-modal-backdrop" style="display:none;"></div>
+
+<!-- OKNO -->
+<div id="typesModal" class="type-modal" style="display:none;">
+    <span class="close-type-modal">&times;</span>
+
+    <pre id="typesModalText"></pre>
+</div>
+
+<style>
+
+.type-modal {
+    position: fixed;   /* ZMIANA! — zawsze na środku ekranu */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 550px;
+    max-width: 90%;
+    background: rgba(20, 55, 75, 0.95);
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 0 35px rgba(0, 200, 255, 0.35);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    z-index: 999999;
+}
+
+.type-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+    z-index: 999998;
+}
+
+</style>
+<script>
+function openTypesModal(text) {
+    document.getElementById("typesModalText").textContent = text;
+    document.getElementById("typesBackdrop").style.display = "block";
+    document.getElementById("typesModal").style.display = "block";
+}
+
+function closeTypesModal() {
+    document.getElementById("typesBackdrop").style.display = "none";
+    document.getElementById("typesModal").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    let closeBtn = document.querySelector(".close-type-modal");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeTypesModal);
+    }
+
+    let backdrop = document.getElementById("typesBackdrop");
+    if (backdrop) {
+        backdrop.addEventListener("click", closeTypesModal);
+    }
+});
+function showTypes() {
+    let result =
+        "type(10) → int\n" +
+        "type(3.14) → float\n" +
+        "type('hello') → str\n" +
+        "type(True) → bool\n" +
+        "type([1,2,3]) → list\n" +
+        "type({'a': 1}) → dict";
+
+    openTypesModal(result);
+}
+</script>
+
+                ]]>
+            </column>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

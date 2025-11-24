@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.11.xsd">
+    <changeSet id="017-fix-users" author="learnedge">
+        <update tableName="users">
+            <column name="first_name" value="Admin"/>
+            <column name="last_name" value="System"/>
+            <column name="learning_style" value="VISUAL"/>
+            <where>username='admin'</where>
+        </update>
+
+        <update tableName="users">
+            <column name="first_name" value="Jan"/>
+            <column name="last_name" value="Kowalski"/>
+            <column name="learning_style" value="AUDITORY"/>
+            <where>username='user'</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>

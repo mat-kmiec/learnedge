@@ -45,19 +45,38 @@ public class SecurityConfig {
             )
 
             // ✅ Uprawnienia
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/", "/logowanie", "/rejestracja", "/error",
-                        "/przypomnij-haslo", "/reset-hasla", "/reset-hasla/**",
-                        "/oauth2/**", "/h2-console/**",
-                        "/css/**", "/js/**", "/img/**", "/webjars/**",
-                        "/uploads/**",  // Public profile pictures like YouTube/Instagram
-                        "/api/cookies/**"  // Cookie consent API endpoints
-                ).permitAll()
-                .requestMatchers(HttpMethod.POST, "/rejestracja", "/przypomnij-haslo", "/reset-hasla").permitAll()
-                .anyRequest().authenticated()
-            )            // ✅ Dla H2
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+//            .authorizeHttpRequests(auth -> auth
+//                .requestMatchers(
+//                        "/", "/logowanie", "/rejestracja", "/error",
+//                        "/przypomnij-haslo", "/reset-hasla", "/reset-hasla/**",
+//                        "/oauth2/**", "/h2-console/**",
+//                        "/css/**", "/js/**", "/img/**", "/webjars/**",
+//                        "/uploads/**",  // Public profile pictures like YouTube/Instagram
+//                        "/api/cookies/**"  // Cookie consent API endpoints
+//                ).permitAll()
+//                .requestMatchers(HttpMethod.POST, "/rejestracja", "/przypomnij-haslo", "/reset-hasla").permitAll()
+//                .anyRequest().authenticated()
+//            )            // ✅ Dla H2
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/logowanie", "/rejestracja", "/error",
+                                "/przypomnij-haslo", "/reset-hasla", "/reset-hasla/**",
+                                "/oauth2/**", "/h2-console/**",
+                                "/css/**", "/js/**", "/img/**", "/webjars/**",
+                                "/uploads/**",
+                                "/api/cookies/**"
+                        ).permitAll()
+
+                        .requestMatchers("/admin/**", "/lista-użytkowników/**").hasRole("ADMIN")
+
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/rejestracja", "/przypomnij-haslo", "/reset-hasla").permitAll()
+
+                        .anyRequest().authenticated()
+                )
+
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
 
             // ✅ Logowanie formularzem
             .formLogin(form -> form
