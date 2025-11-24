@@ -1,5 +1,6 @@
 package pl.learnedge.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -110,5 +111,33 @@ public class UserService {
                 })
                 .orElse(0);
     }
+
+    public List<User> getAllUsers() {
+        return users.findAll();
+    }
+
+    public User getUserById(Long id) {
+        return users.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Transactional
+    public User adminUpdateUser(Long id, User updated) {
+        User u = getUserById(id);
+
+        u.setFirstName(updated.getFirstName());
+        u.setLastName(updated.getLastName());
+        u.setEmail(updated.getEmail());
+        u.setRole(updated.getRole());
+        u.setLearningStyle(updated.getLearningStyle());
+
+        return users.save(u);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        users.deleteById(id);
+    }
+
 
 }

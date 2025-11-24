@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="insert-python-lesson-4" author="martyna">
+
+        <insert tableName="lessons">
+            <column name="id" valueNumeric="2004"/>
+            <column name="title" value="Funkcje w Pythonie"/>
+            <column name="lesson_order" valueNumeric="4"/>
+            <column name="slug" value="funkcje"/>
+            <column name="course_id" valueNumeric="1001"/>
+
+            <column name="content"><![CDATA[
+
+<!-- =============================== -->
+<!-- WPROWADZENIE – data-learning="0" -->
+<!-- =============================== -->
+
+<div data-learning="0">
+    <h2 class="course-section-title">Funkcje w Pythonie</h2>
+
+    <div class="course-text-block mt-3">
+        <h5 class="course-text-title"><i class="bi bi-gear"></i> Co poznasz w tej lekcji?</h5>
+        <div class="course-text-content">
+            <p>Dowiesz się, czym są funkcje, jak je definiować, jak przekazywać argumenty oraz jak zwracać wyniki.
+            Funkcje pozwalają dzielić kod na logiczne fragmenty i wielokrotnie wykorzystywać te same instrukcje.</p>
+        </div>
+    </div>
+
+    <div class="course-note mt-4">
+        <i class="bi bi-lightbulb"></i>
+        <strong>Pamiętaj:</strong> dobra funkcja powinna robić jedną rzecz dobrze.
+    </div>
+</div>
+
+
+
+<!-- =========================== -->
+<!-- 🎧 SŁUCHOWIEC – data-learning="1" -->
+<!-- =========================== -->
+
+<div data-learning="1">
+     <h4 class="mt-3"> Czym są funkcje i dlaczego warto ich używać?</h4>
+    <div class="course-audio-container mt-4">
+        <audio controls src="/audio/czymsafunkcjepython.m4a"></audio>
+    </div>
+    <hr>
+    <div class="course-fact">
+        <p>W Pythonie funkcje możesz zdefiniować samodzielnie oraz możesz skorzystać
+        z funkcji wbudowanych języka takich jak print() wypisujący tekst na ekranie czy input() pobierający
+        dane od użytkownika. Funkcje mogą przyjmować argumenty, ale nie muszą. Podobnie ze zwracaniem
+        przez nie wartości. Możesz też posługiwać się funkcjami anonimowymi lambda.</p>
+    </div>
+
+     <h4 class="mt-3"> Argumenty funkcji i wartości zwracane..</h4>
+    <div class="course-video-container mt-2">
+        <video controls style="width:100%; height:100%; object-fit:contain; background:#000;">
+            <source src="/video/argumentyizwracaniepython.mp4" type="video/mp4">
+        </video>
+    </div>
+    <hr>
+    <div class="course-fact">
+        <p>W Pythonie funkcje możesz zdefiniować samodzielnie oraz możesz skorzystać
+        z funkcji wbudowanych języka takich jak print() wypisujący tekst na ekranie czy input() pobierający
+        dane od użytkownika. Funkcje mogą przyjmować argumenty, ale nie muszą. Podobnie ze zwracaniem
+        przez nie wartości. Możesz też posługiwać się funkcjami anonimowymi lambda.
+        <pre class="code-block">
+        def nazwa_funkcji(parametr1, parametr2):
+            # blok kodu
+            return wynik
+        </pre></p>
+    </div>
+
+</div>
+
+
+
+<!-- =========================== -->
+<!-- 👀 WZROKOWIEC – data-learning="2" -->
+<!-- =========================== -->
+
+<div data-learning="2">
+
+    <h4 class="mt-3"> Przykładowe funkcje wbudowane języka.</h4>
+     <div class="course-image-container mt-3">
+            <img class="course-image" src="/img/funkcjewbudowanepython.png" alt="Funkcje wbudowane w Pythonie.">
+        </div>
+
+    <h4 class="mt-3"> Struktura funkcji</h4>
+<pre class="code-block">
+def nazwa_funkcji(parametr1, parametr2):
+    # blok kodu
+    return wynik
+</pre>
+
+    <h4 class="mt-4"> Funkcja bez parametrów</h4>
+<pre class="code-block">
+def przywitaj():
+    print("Cześć!")
+</pre>
+
+    <h4 class="mt-4">Funkcja zwracająca wynik</h4>
+<pre class="code-block">
+def dodaj(a, b):
+    return a + b
+</pre>
+
+    <h4 class="mt-4">Wizualne porównanie rodzajów funkcji</h4>
+ <div class="course-text-block mt-3">
+    <table class="course-table">
+        <thead>
+            <tr><th>Typ funkcji</th><th>Przykład</th><th>Opis</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Bez parametrów</td><td>przywitaj()</td><td>Wykonuje akcję, nic nie zwraca</td></tr>
+            <tr><td>Z parametrami</td><td>dodaj(a, b)</td><td>Przyjmuje dane i je przetwarza</td></tr>
+            <tr><td>Z wynikiem</td><td>return</td><td>Oddaje wartość z funkcji</td></tr>
+            <tr><td>Nazwana / anonimowa</td><td>lambda</td><td>Krótkie funkcje jednowierszowe</td></tr>
+        </tbody>
+    </table>
+ </div>
+
+</div>
+
+<!-- 👐 KINESTETYK — data-learning="3" -->
+<div data-learning="3">
+    <div class="course-fact">
+        <p>W Pythonie funkcje możesz zdefiniować samodzielnie oraz możesz skorzystać
+        z funkcji wbudowanych języka takich jak print() wypisujący tekst na ekranie czy input() pobierający
+        dane od użytkownika. Funkcje mogą przyjmować argumenty, ale nie muszą. Podobnie ze zwracaniem
+        przez nie wartości. Możesz też posługiwać się funkcjami anonimowymi lambda.</p>
+    </div>
+
+    <!-- Zadanie 1 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>1. Zobacz, jak działa funkcja:</strong></p>
+        <button class="btn btn-warning" onclick="kin_funkcja_1()">Pokaż wynik</button>
+    </div>
+
+    <!-- Zadanie 2 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>2. Oblicz sumę podanych liczb:</strong></p>
+
+        <input class="practice-input" id="numA" placeholder="a">
+        <input class="practice-input" id="numB" placeholder="b">
+
+        <button class="btn btn-success" onclick="kin_funkcja_2()">Oblicz</button>
+    </div>
+
+    <!-- Zadanie 3 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>3. Jakie będzie wyjście funkcji?</strong></p>
+
+<pre style="background:#002b36; color:#eee; padding:10px; border-radius:8px;">
+def f(x):
+    return x * 2
+
+print(f(3))
+</pre>
+
+        <select class="practice-input" id="ans3">
+            <option value="">-- wybierz --</option>
+            <option value="6">6</option>
+            <option value="2">2</option>
+            <option value="9">9</option>
+        </select>
+
+        <button class="btn btn-info" onclick="kin_funkcja_3()">Sprawdź</button>
+    </div>
+
+    <!-- Zadanie 4 -->
+    <div class="course-practice-block mt-4">
+        <p><strong>4. Napisz własną funkcję (mini edytor):</strong></p>
+
+<textarea id="customFunc" class="practice-input" style="height:260px; font-size:16px;">
+def hello():
+    return "Hello world!"
+</textarea>
+
+        <button class="btn btn-warning" onclick="kin_funkcja_4()">Uruchom</button>
+    </div>
+
+</div>
+
+<!-- QUIZ -->
+<div data-learning="0">
+
+    <h3 class="course-section-title mt-5">📝 Quiz – sprawdź się!</h3>
+
+    <div class="course-quiz-block mt-3">
+        <p>1. Co robi instrukcja <code>return</code>?</p>
+        <div class="course-quiz-option" data-correct="true">Zwraca wynik funkcji</div>
+        <div class="course-quiz-option" data-correct="false">Kończy cały program</div>
+        <div class="course-quiz-option" data-correct="false">Czyści ekran konsoli</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>2. Jak definiujemy funkcję?</p>
+        <div class="course-quiz-option" data-correct="false">function nazwa():</div>
+        <div class="course-quiz-option" data-correct="true">def nazwa():</div>
+        <div class="course-quiz-option" data-correct="false">fun nazwa()</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>3. Co oznaczają parametry funkcji?</p>
+        <div class="course-quiz-option" data-correct="true">Dane przekazywane do funkcji</div>
+        <div class="course-quiz-option" data-correct="false">Zmienne globalne</div>
+        <div class="course-quiz-option" data-correct="false">Wynik działania programu</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>4. Co zwróci funkcja <code>f(x) = x + 5</code> dla argumentu 3?</p>
+        <div class="course-quiz-option" data-correct="false">3</div>
+        <div class="course-quiz-option" data-correct="false">5</div>
+        <div class="course-quiz-option" data-correct="true">8</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+    <div class="course-quiz-block mt-3">
+        <p>5. Czym jest funkcja anonimowa?</p>
+        <div class="course-quiz-option" data-correct="true">Krótka funkcja utworzona za pomocą <code>lambda</code></div>
+        <div class="course-quiz-option" data-correct="false">Funkcja bez nazwy używana tylko w C++</div>
+        <div class="course-quiz-option" data-correct="false">Funkcja ukryta przed systemem</div>
+        <div class="course-quiz-feedback"></div>
+    </div>
+
+</div>
+
+
+<!-- MODAL DLA KINESTETYKA -->
+<div id="typesBackdrop" class="type-modal-backdrop"></div>
+<div id="typesModal" class="type-modal">
+    <span class="close-type-modal">&times;</span>
+    <pre id="typesModalText"></pre>
+</div>
+
+<style>
+/* ===== MODAL DLA KINESTETYKA ===== */
+
+.type-modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    z-index: 999998;
+}
+
+.type-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10, 45, 55, 0.95);
+    padding: 25px;
+    border-radius: 14px;
+    width: 550px;
+    max-width: 90%;
+    color: #fff;
+    box-shadow: 0 0 35px rgba(0, 180, 200, 0.45);
+    z-index: 999999;
+}
+
+.type-modal pre {
+    white-space: pre-wrap;
+}
+
+.close-type-modal {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    cursor: pointer;
+    font-size: 28px;
+    color: #fff;
+}
+</style>
+
+<script>
+/* ======================
+   OBSŁUGA MODALA
+   ====================== */
+function openTypesModal(text) {
+    document.getElementById("typesModalText").textContent = text;
+    document.getElementById("typesBackdrop").style.display = "block";
+    document.getElementById("typesModal").style.display = "block";
+}
+
+function closeTypesModal() {
+    document.getElementById("typesBackdrop").style.display = "none";
+    document.getElementById("typesModal").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const closeBtn = document.querySelector(".close-type-modal");
+    const backdrop = document.getElementById("typesBackdrop");
+
+    if (closeBtn) closeBtn.onclick = closeTypesModal;
+    if (backdrop) backdrop.onclick = closeTypesModal;
+});
+
+
+/* ======================
+   KINESTETYK – ZADANIE 1
+   ====================== */
+function kin_funkcja_1() {
+    function greet() {
+        return (
+            "👋 Cześć! Jestem przykładową funkcją w Pythonie.\n\n" +
+            "Funkcja działa tak, że najpierw ją definiujesz:\n" +
+            "    def greet():\n" +
+            "        return \"Hello\"\n\n" +
+            "A następnie wywołujesz jej nazwę, by zwróciła wartość."
+        );
+    }
+    openTypesModal(greet());
+}
+
+
+/* ======================
+   KINESTETYK – ZADANIE 2
+   ====================== */
+function kin_funkcja_2() {
+    let a = Number(document.getElementById("numA").value);
+    let b = Number(document.getElementById("numB").value);
+
+    if (isNaN(a) || isNaN(b)) {
+        openTypesModal("⚠️ Musisz wpisać DWIE liczby!");
+        return;
+    }
+
+    function dodaj(x, y) { return x + y; }
+
+    openTypesModal("Wynik działania funkcji dodaj(x, y):\n" + dodaj(a, b));
+}
+
+
+/* ======================
+   KINESTETYK – ZADANIE 3
+   ====================== */
+function kin_funkcja_3() {
+    let v = document.getElementById("ans3").value;
+
+    if (!v) {
+        openTypesModal("⚠️ Najpierw wybierz odpowiedź!");
+        return;
+    }
+
+    if (v === "6") {
+        openTypesModal("🎉 Poprawnie! Funkcja zwróci wartość 6.");
+    } else {
+        openTypesModal("❌ Niepoprawnie — spróbuj jeszcze raz.");
+    }
+}
+
+
+/* ======================
+   KINESTETYK – ZADANIE 4
+   ====================== */
+function kin_funkcja_4() {
+    let code = document.getElementById("customFunc").value;
+
+    openTypesModal(
+        "📦 Twój zapisany kod (symulacja wykonania):\n\n" + code
+    );
+}
+</script>
+
+
+            ]]></column>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

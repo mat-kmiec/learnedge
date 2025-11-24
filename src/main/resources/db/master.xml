@@ -17,6 +17,13 @@
     <include file="changelog/009-update-test-user.xml" relativeToChangelogFile="true"/>
     <include file="changelog/010-create-lesson-progress.xml" relativeToChangelogFile="true"/>
     <include file="changelog/011-insert-lesson-progress.xml" relativeToChangelogFile="true"/>
-<!--    <include file="changelog/013-insert-javascript-lesson.xml" relativeToChangelogFile="true"/>-->
+    <include file="changelog/012-insert-python-course.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/013-insert-python-course.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/014-insert-python-course.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/015-insert-python-course.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/016-insert-python-course.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/017-add-admin.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/018-fix-users.xml" relativeToChangelogFile="true"/>
+    <!--    <include file="changelog/013-insert-javascript-lesson.xml" relativeToChangelogFile="true"/>-->
 
 </databaseChangeLog>

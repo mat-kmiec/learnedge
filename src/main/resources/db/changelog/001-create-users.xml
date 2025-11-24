@@ -37,4 +37,5 @@
             <column name="email" value="user@example.com"/>
         </insert>
     </changeSet>
+
 </databaseChangeLog>
